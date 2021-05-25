@@ -1,8 +1,10 @@
 from typing import NamedTuple
+from serial import Serial
 
-import serial
 import pyzed.sl as sl
 import socket
+import fcntl
+import struct
 
 class Robot_state:
     INITIALISATION = "Initialisation"
@@ -18,6 +20,7 @@ class ParamsInit(NamedTuple):
     pose: sl.Pose
     ser: Serial
     socket: socket.SocketType
+    runtime: sl.RuntimeParameters
 
 def get_ip_address(ifname):
     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)

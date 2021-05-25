@@ -7,6 +7,7 @@ import pyzed.sl as sl
 import threading
 import argparse
 
+message_server = None
 
 def initialize():
     """
@@ -18,21 +19,24 @@ def initialize():
     parser.add_argument("option2")
     args = parser.parse_args()
 
-    # ZED CONFIGURATION CAMERA.        
+    # ZED CAMERA CONFIGURATION.        
     zed = sl.Camera()
     init_params = sl.InitParameters()
     init_params.camera_resolution = sl.RESOLUTION.HD720                             # Use HD720 video mode.
     init_params.coordinate_units = sl.UNIT.METER                                    # Set coordinate units.
     init_params.coordinate_system = sl.COORDINATE_SYSTEM.RIGHT_HANDED_Y_UP
     zed.open(init_params)
-    print(f"[INIT] - camera zed 2 open.")
+    tracking_parameters = sl.PositionalTrackingParameters()                         # enable tracking from zed.
+    zed.enable_positional_tracking(tracking_parameters)
+    print(f"[INIT] - open camera zed 2.")
 
     # ZED OBJECT CONFIGURATION.
     image = sl.Mat()                                                                # Left image from camera.
     pose = sl.Pose()  
+    runtime = sl.RuntimeParameters()
 
     # OPEN COMMUNICATION WITH MICRO-CONTROLER.
-    port_name = get_usb()                                                           # get automatiqly the micro controler.
+    port_name = get_usb()                                                           # get automaticly the micro controler.
     ser = Serial(port_name, 9600)
     commande_motor = 'e'
     ser.write(commande_motor.encode())
@@ -40,60 +44,75 @@ def initialize():
 
     # INIT SERVER PARAM AND SETUP SOCKET.
     sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-    print(sock.bind((get_ip_address((bytes("{0}".format(args.id_name), 'utf-8'))), 8081)))
+    sock.bind((get_ip_address((bytes("{0}".format(args.id_name), 'utf-8'))), 8081))
     print(f"[INIT] - open server communication.")
 
     # SEND PARAM.
-    params = ParamsInit(zed, image, pose, ser, sock)
+    params = ParamsInit(zed, image, pose, ser, sock, runtime)
     return params
 
-def thread_listen_server():
+def thread_listen_server(socket):
     """
         DESCRIPTION  : This thread will listen the server and transfert instruction from it.
     """
-    # send ping to verify server.
-    pass
+    global message_server
 
-def thread_SLAM():
+    while(True):
+        data, addr = socket.recvfrom(1024)
+        
+        with lock: 
+            message_server = data.decode()
+
+def thread_slam(params):
     """
         DESCRIPTION  : This thread will listen the camera zed sdk information and transfert
                     data to other thread. It will also send camera flux to server.
     """
-    pass
+    zed, image, pose, ser, sock, runtime = params
+
+    while True:
+        # GET IMAGE.
+        zed.grab(runtime)
+        zed.retrieve_image(image, sl.VIEW.LEFT)
+        zed.get_position(pose)
+        print(pose.pose_data().m)
 
 def thread_compute_command():
     """
         DESCRIPTION  : This thread will analyse the data from thread_SLAM and thread_listen_sensor
                     and take descision to send to micro controler.
     """
-    pass
+    while(True):
+        print("3")
 
 def thread_listen_sensor():
     """
         DESCRIPTION  : This thread will listen the data from ultra-son sensor from micro controler.
     """
-    pass
+    while(True):
+        print("4")
 
 if __name__ == '__main__':
     params = initialize()
 
     # Thread listen server.
-    thread_1 = threading.Thread(target=thread_listen_server, args=(params.socket, ))
+    # thread_1 = threading.Thread(target=thread_listen_server, args=(params.socket, ))
+    thread_1 = threading.Thread(target=thread_listen_server, args=(params.socket,))
     thread_1.start()
 
     # Thread slam.
-    thread_2 = threading.Thread(target=thread_SLAM, args=(params.socket, ))
+    thread_2 = threading.Thread(target=thread_slam, args=(params,))
     thread_2.start()
 
-    # Thread compute command.
-    thread_3 = threading.Thread(target=thread_compute_command, args=(params.socket, ))
-    thread_3.start()
+    # # Thread compute command.
+    # thread_3 = threading.Thread(target=thread_compute_command)
+    # thread_3.start()
 
-    # Thread listen sensor.
-    thread_4 = threading.Thread(target=thread_listen_sensor, args=(params.socket, ))
-    thread_4.start()
+    # # Thread listen sensor.
+    # thread_4 = threading.Thread(target=thread_listen_sensor)
+    # thread_4.start()
 
     thread_1.join()
     thread_2.join()
-    thread_3.join()
-    thread_4.join()
+    # thread_3.join()
+    # thread_4.join()
