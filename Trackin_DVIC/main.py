@@ -37,7 +37,7 @@ def initialize():
 
     # OPEN COMMUNICATION WITH MICRO-CONTROLER.
     port_name = get_usb()                                                           # get automaticly the micro controler.
-    ser = Serial(port_name, 9600)
+    ser = Serial(port_name, 115200)
     commande_motor = 'e'
     ser.write(commande_motor.encode())
     print(f"[INIT] - open microcontroler on port {port_name}.")
@@ -73,9 +73,9 @@ def thread_slam(params):
     while True:
         # GET IMAGE.
         zed.grab(runtime)
-        zed.retrieve_image(image, sl.VIEW.LEFT)
-        zed.get_position(pose)
-        print(pose.pose_data().m)
+        zed.retrieve_image(image, sl.VIEW.LEFT)                             
+        zed.get_position(pose)                                              # get position of robot.
+        # print(pose.pose_data().m)
 
 def thread_compute_command():
     """
@@ -85,12 +85,23 @@ def thread_compute_command():
     while(True):
         print("3")
 
-def thread_listen_sensor():
+def thread_listen_sensor(ser):
     """
         DESCRIPTION  : This thread will listen the data from ultra-son sensor from micro controler.
     """
-    while(True):
-        print("4")
+    data_ultrasensor = np.zeros(4)
+
+    while True:
+        ser.reset_input_buffer()                                        # reset buffer to avoid delay.
+        data = ser.readline()
+        encodor_data  = (data.decode('utf-8')).split(sep='/')
+        
+        if len(encodor_data[0]) == 5:
+            data_ultrasensor[0] = float(encodor_data[0])
+            data_ultrasensor[1] = float(encodor_data[1])
+            data_ultrasensor[2] = float(encodor_data[2])
+            data_ultrasensor[3] = float(encodor_data[3])
+            print(data_ultrasensor)
 
 if __name__ == '__main__':
     params = initialize()
@@ -104,15 +115,15 @@ if __name__ == '__main__':
     thread_2 = threading.Thread(target=thread_slam, args=(params,))
     thread_2.start()
 
-    # # Thread compute command.
+    # Thread compute command.
     # thread_3 = threading.Thread(target=thread_compute_command)
     # thread_3.start()
 
     # # Thread listen sensor.
-    # thread_4 = threading.Thread(target=thread_listen_sensor)
-    # thread_4.start()
+    thread_4 = threading.Thread(target=thread_listen_sensor, args=(params.ser,))
+    thread_4.start()
 
     thread_1.join()
     thread_2.join()
     # thread_3.join()
-    # thread_4.join()
+    thread_4.join()
