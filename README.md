@@ -4,7 +4,7 @@ New tracking robot following you wherever you go !
 
 ## EQUIPMENT
 
-|Name          |TECH                 |
+|Name          |Tech                 |
 |:-------------|:--------------------|
 |Camera        |ZED 2                |
 |Pont H        |Model X motor driver |
