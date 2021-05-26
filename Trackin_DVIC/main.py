@@ -6,6 +6,7 @@ import numpy as np
 import pyzed.sl as sl
 import threading
 import argparse
+import cv2
 
 message_server = None
 
@@ -23,6 +24,7 @@ def initialize():
     zed = sl.Camera()
     init_params = sl.InitParameters()
     init_params.camera_resolution = sl.RESOLUTION.HD720                             # Use HD720 video mode.
+    init_params.camera_fps = 15                             
     init_params.coordinate_units = sl.UNIT.METER                                    # Set coordinate units.
     init_params.coordinate_system = sl.COORDINATE_SYSTEM.RIGHT_HANDED_Y_UP
     zed.open(init_params)
@@ -34,6 +36,16 @@ def initialize():
     image = sl.Mat()                                                                # Left image from camera.
     pose = sl.Pose()  
     runtime = sl.RuntimeParameters()
+
+    # ZED OBJECT DETECTION CONFIGURATION.
+    obj_param = sl.ObjectDetectionParameters()
+    obj_param.enable_tracking = True                                                # tracking object.
+    zed.enable_positional_tracking()
+    zed.enable_object_detection(obj_param)
+    obj_runtime_param = sl.ObjectDetectionRuntimeParameters()
+    obj_runtime_param.detection_confidence_threshold = 75
+    obj_runtime_param.object_class_filter = [sl.OBJECT_CLASS.PERSON]                # Only detect Persons
+    objects = sl.Objects()
 
     # OPEN COMMUNICATION WITH MICRO-CONTROLER.
     port_name = get_usb()                                                           # get automaticly the micro controler.
@@ -48,7 +60,7 @@ def initialize():
     print(f"[INIT] - open server communication.")
 
     # SEND PARAM.
-    params = ParamsInit(zed, image, pose, ser, sock, runtime)
+    params = ParamsInit(zed, image, pose, ser, sock, runtime, objects, obj_runtime_param)
     return params
 
 def thread_listen_server(socket):
@@ -68,14 +80,30 @@ def thread_slam(params):
         DESCRIPTION  : This thread will listen the camera zed sdk information and transfert
                     data to other thread. It will also send camera flux to server.
     """
-    zed, image, pose, ser, sock, runtime = params
+    zed, image, pose, ser, sock, runtime, objects, obj_runtime_param = params
 
     while True:
         # GET IMAGE.
         zed.grab(runtime)
         zed.retrieve_image(image, sl.VIEW.LEFT)                             
         zed.get_position(pose)                                              # get position of robot.
+        zed.retrieve_objects(objects, obj_runtime_param)
         # print(pose.pose_data().m)
+        # print(len(objects.object_list))
+        
+        i = get_id_nearest_humain(objects)
+
+        # DRAW.
+        image_draw = image.get_data()
+        # if len(objects.object_list) > 0:
+        print(objects.object_list[i].mask.get_data()[0,0])
+
+        # DEBUG SHOWING WINDOWS
+        cv2.WINDOW_NORMAL
+        cv2.namedWindow("windows",0)
+        cv2.imshow("windows", image_draw)
+        if cv2.waitKey(1) & 0xFF == ord('q'):
+            break
 
 def thread_compute_command():
     """
@@ -101,7 +129,7 @@ def thread_listen_sensor(ser):
             data_ultrasensor[1] = float(encodor_data[1])
             data_ultrasensor[2] = float(encodor_data[2])
             data_ultrasensor[3] = float(encodor_data[3])
-            print(data_ultrasensor)
+            # print(data_ultrasensor)
 
 if __name__ == '__main__':
     params = initialize()
