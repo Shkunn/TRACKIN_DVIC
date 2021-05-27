@@ -7,8 +7,15 @@ import pyzed.sl as sl
 import threading
 import argparse
 import cv2
+import time
 
-message_server = None
+"""
+    INFO    : This is all Global variable.
+"""
+message_server     = None
+data_ultrasensor   = np.zeros(4)
+data_detection     = np.zeros(3)                                                        # format(axes y position, distance, nombre object)
+data_position      = np.zeros(3)
 
 def initialize():
     """
@@ -81,22 +88,44 @@ def thread_slam(params):
                     data to other thread. It will also send camera flux to server.
     """
     zed, image, pose, ser, sock, runtime, objects, obj_runtime_param = params
+    global data_position, data_detection
 
     while True:
         # GET IMAGE.
         zed.grab(runtime)
         zed.retrieve_image(image, sl.VIEW.LEFT)                             
-        zed.get_position(pose)                                              # get position of robot.
-        zed.retrieve_objects(objects, obj_runtime_param)
-        # print(pose.pose_data().m)
-        # print(len(objects.object_list))
-        
-        i = get_id_nearest_humain(objects)
+        zed.get_position(pose)                                                          # get position of robot.
+
+        translation      = pose.pose_data().m[:3,3]
+        _,  oy,  _       = pose.get_euler_angles()       
+        data_position[0] = translation[0]
+        data_position[1] = translation[2]      
+        data_position[2] = oy                                                           
+
+        zed.retrieve_objects(objects, obj_runtime_param)                                # get 3D objects detection.   
+        validation, i = get_id_nearest_humain(objects)                                  # sort all object.
 
         # DRAW.
         image_draw = image.get_data()
-        # if len(objects.object_list) > 0:
-        print(objects.object_list[i].mask.get_data()[0,0])
+        if validation:
+
+            humain        = objects.object_list[i].bounding_box_2d
+            # print(humain[0][0], humain[0][1])
+            point_A       = (int(humain[0][0]), int(humain[0][1]))
+            point_B       = (int(humain[1][0]), int(humain[1][1]))
+            point_C       = (int(humain[2][0]), int(humain[2][1]))
+            point_D       = (int(humain[3][0]), int(humain[3][1]))
+            color         = (0, 255, 0)
+            image_draw    = cv2.line(image_draw, point_A, point_B, color, 5)
+            image_draw    = cv2.line(image_draw, point_B, point_C, color, 5)  
+            image_draw    = cv2.line(image_draw, point_C, point_D, color, 5)  
+            image_draw    = cv2.line(image_draw, point_D, point_A, color, 5) 
+
+            data_detection[0] = (int(humain[0][0]) + int(humain[1][0]))/2
+            data_detection[1] = objects.object_list[i].position[2]
+            data_detection[2] = len(objects.object_list)
+        else:
+            data_detection    = np.zeros(3)  
 
         # DEBUG SHOWING WINDOWS
         cv2.WINDOW_NORMAL
@@ -105,26 +134,51 @@ def thread_slam(params):
         if cv2.waitKey(1) & 0xFF == ord('q'):
             break
 
-def thread_compute_command():
+def send_command(current_command, new_command, ser):
+    """
+        DESCRIPTION  : Send a message to the controler if it's different
+    """
+    last_command = current_command;
+    
+    if current_command != new_command:
+        print(current_command)
+        ser.write(new_command.encode())
+        last_command = new_command
+        print("NEW COMMAND : ", last_command)
+    
+    return last_command
+
+def thread_compute_command(params):
     """
         DESCRIPTION  : This thread will analyse the data from thread_SLAM and thread_listen_sensor
-                    and take descision to send to micro controler.
+                    and take decision to send to micro controler.
     """
-    while(True):
-        print("3")
+    zed, image, pose, ser, sock, runtime, objects, obj_runtime_param = params
+    global data_ultrasensor, data_position, data_detection
+
+    while True:
+        """
+            INFO     : We will see if we have access to all data in this thread.
+        """
+        # ultra son data.
+        print("Data Ultra song : ", data_ultrasensor)
+        print("Data position   : ", data_position)
+        print("Data detection  : ", data_detection)
+        print("\n")
+        time.sleep(0.1)
 
 def thread_listen_sensor(ser):
     """
         DESCRIPTION  : This thread will listen the data from ultra-son sensor from micro controler.
     """
-    data_ultrasensor = np.zeros(4)
+    global data_ultrasensor
 
     while True:
         ser.reset_input_buffer()                                        # reset buffer to avoid delay.
         data = ser.readline()
         encodor_data  = (data.decode('utf-8')).split(sep='/')
         
-        if len(encodor_data[0]) == 5:
+        if len(encodor_data) == 5:
             data_ultrasensor[0] = float(encodor_data[0])
             data_ultrasensor[1] = float(encodor_data[1])
             data_ultrasensor[2] = float(encodor_data[2])
@@ -144,14 +198,14 @@ if __name__ == '__main__':
     thread_2.start()
 
     # Thread compute command.
-    # thread_3 = threading.Thread(target=thread_compute_command)
-    # thread_3.start()
+    thread_3 = threading.Thread(target=thread_compute_command, args=(params,))
+    thread_3.start()
 
-    # # Thread listen sensor.
+    # Thread listen sensor.
     thread_4 = threading.Thread(target=thread_listen_sensor, args=(params.ser,))
     thread_4.start()
 
     thread_1.join()
     thread_2.join()
-    # thread_3.join()
+    thread_3.join()
     thread_4.join()

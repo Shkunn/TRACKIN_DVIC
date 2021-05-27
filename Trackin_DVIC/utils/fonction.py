@@ -39,20 +39,20 @@ def get_id_nearest_humain(objects):
         INPUT      :
         *objects   > list of objects from zed sdl. 
         OUTPUT     :
-        *index     > return the index not id.
+        *valid     > if list is bigger than 0.
+        *index_list> position of nearest humain in objects list.
     '''
-    index        = 0
-    i            = 0
+    
+    if len(objects.object_list) == 0:
+        return False, None
+    
     min_distance = -5
-    is_found = False
+    index_list   = 0
+    i            = 0
     for obj in objects.object_list:
         if obj.position[2] > min_distance:
-            index = i
             min_distance = obj.position[2]
-            is_found = True
+            index_list = i 
         i += 1
-    
-    if is_found:
-        return index
-    else:
-        return 666
+
+    return True, index_list        
