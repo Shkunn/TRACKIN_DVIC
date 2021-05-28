@@ -7,12 +7,25 @@ import fcntl
 import struct
 
 class Robot_state:
-    INITIALISATION = "Initialisation"
-    WAITING = "Waiting"
-    FOLLOWING = "Processing Global Path"
-    LOST = "Automatique Mode"
-    HOME = "Go to home"
-    MANUALMODE = "Manual Mode"
+    INITIALISATION  = "initialisation"
+    WAITING         = "waiting"
+    FOLLOWING       = "follow"
+    LOST            = "lost"
+    HOME            = "home"
+    MANUALMODE      = "manual"
+ 
+class Control_user: 
+    STOP            = "0"
+    FORWARD         = "1"
+    BACKWARD        = "2"
+    LEFT            = "3"
+    RIGHT           = "4"
+    TURN_LEFT       = "5"
+    TURN_RIGHT      = "6"
+    DIAG_FOR_LEFT   = "7"
+    DIAG_FOR_RIGHT  = "8"
+    DIAG_BACK_LEFT  = "9"
+    DIAG_BACK_RIGHT = "10"
 
 class ParamsInit(NamedTuple):
     zed: sl.Camera
@@ -39,20 +52,40 @@ def get_id_nearest_humain(objects):
         INPUT      :
         *objects   > list of objects from zed sdl. 
         OUTPUT     :
-        *index     > return the index not id.
+        *valid     > if list is bigger than 0.
+        *index_list> position of nearest humain in objects list.
     '''
-    index        = 0
-    i            = 0
+    
+    if len(objects.object_list) == 0:
+        return False, None
+    
     min_distance = -5
-    is_found = False
+    index_list   = 0
+    i            = 0
     for obj in objects.object_list:
         if obj.position[2] > min_distance:
-            index = i
             min_distance = obj.position[2]
-            is_found = True
+            index_list = i 
         i += 1
+
+    return True, index_list     
+
+def check_ultrason_init(ser):
+    '''
+        DESCRIPTION: This function will run at the begining in
+                the initialisation process and will check if 
+                the ultrason sensor connection is working.
+    ''' 
+
+    data = ser.readline()
+    encodor_data  = (data.decode('utf-8')).split(sep='/')
     
-    if is_found:
-        return index
-    else:
-        return 666
+    if len(encodor_data) == 5:
+        data_ultrasensor[0] = float(encodor_data[0])
+        data_ultrasensor[1] = float(encodor_data[1])
+        data_ultrasensor[2] = float(encodor_data[2])
+        data_ultrasensor[3] = float(encodor_data[3])
+        if(data_ultrasensor[0] != 0 or data_ultrasensor[1] != 0 or data_ultrasensor[2] != 0 or data_ultrasensor[3] != 0):
+            return True
+
+    return False
