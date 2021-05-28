@@ -60,7 +60,6 @@ def initialize():
     # ZED OBJECT DETECTION CONFIGURATION.
     obj_param = sl.ObjectDetectionParameters()
     obj_param.enable_tracking = True                                                # tracking object.
-    zed.enable_object_detection(obj_param)
     if(zed.enable_object_detection(obj_param) != sl.ERROR_CODE.SUCCESS):             
         print("[ERR0] Can't enable object detection on camera zed 2.")
         exit(-1)
@@ -305,7 +304,7 @@ def thread_compute_command(params):
                     command_micro = np.array([ 200, 200, 800, 800])
                     last_command_micro = send_command_v2(last_command_micro, command_micro, ser)
 
-                if (data_detection[1] < (param_threshold_distance-param_plage_distance) and not new_command:
+                if data_detection[1] < (param_threshold_distance-param_plage_distance) and not new_command:
                     # need to forward.
                     new_command = True
                     command_micro = np.array([ 200, 200, 200, 200])
@@ -351,7 +350,7 @@ def thread_compute_command(params):
                     lost_time = time.time()
                     global_state = Robot_state.LOST
 
-                if(global_state == Robot_state.LOST and (time.time() - lost_time) > 2)
+                if(global_state == Robot_state.LOST and (time.time() - lost_time) > 2):
                     # we are in Robot_state.LOST since 2.0 secondes.
                     # so we will turn in one turn.
                     # Turn left.
