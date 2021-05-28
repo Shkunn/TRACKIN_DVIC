@@ -198,6 +198,25 @@ void init_GPIO()
     pinMode(speedPinRB, OUTPUT);
 
     stop_Stop();
+
+    /* Initialise les broches */
+    pinMode(TRIGGER_PIN, OUTPUT);
+    digitalWrite(TRIGGER_PIN, LOW); // La broche TRIGGER doit être à LOW au repos
+    pinMode(ECHO_PIN, INPUT);
+
+    pinMode(TRIGGER_PIN_B, OUTPUT);
+    digitalWrite(TRIGGER_PIN_B, LOW); // La broche TRIGGER doit être à LOW au repos
+    pinMode(ECHO_PIN_B, INPUT);
+
+    pinMode(TRIGGER_PIN_C, OUTPUT);
+    digitalWrite(TRIGGER_PIN_C, LOW); // La broche TRIGGER doit être à LOW au repos
+    pinMode(ECHO_PIN_C, INPUT);
+
+    pinMode(TRIGGER_PIN_D, OUTPUT);
+    digitalWrite(TRIGGER_PIN_D, LOW); // La broche TRIGGER doit être à LOW au repos
+    pinMode(ECHO_PIN_D, INPUT);
+
+    pinMode(LED_BUILTIN, OUTPUT);
 }
 
 void setup()
@@ -259,29 +278,6 @@ void setup()
     delay(1000);
 
     Serial.print("MOTORS             : DONE...");*/
-
-    /* Initialise les broches */
-    pinMode(TRIGGER_PIN, OUTPUT);
-    digitalWrite(TRIGGER_PIN, LOW); // La broche TRIGGER doit être à LOW au repos
-    pinMode(ECHO_PIN, INPUT);
-
-    pinMode(TRIGGER_PIN_B, OUTPUT);
-    digitalWrite(TRIGGER_PIN_B, LOW); // La broche TRIGGER doit être à LOW au repos
-    pinMode(ECHO_PIN_B, INPUT);
-
-    pinMode(TRIGGER_PIN_C, OUTPUT);
-    digitalWrite(TRIGGER_PIN_C, LOW); // La broche TRIGGER doit être à LOW au repos
-    pinMode(ECHO_PIN_C, INPUT);
-
-    pinMode(TRIGGER_PIN_D, OUTPUT);
-    digitalWrite(TRIGGER_PIN_D, LOW); // La broche TRIGGER doit être à LOW au repos
-    pinMode(ECHO_PIN_D, INPUT);
-
-    // Serial.print("ULTRASONIC SENSORS : DONE...");  
-
-    // Serial.print("INIT FINISHED...");
-
-    pinMode(LED_BUILTIN, OUTPUT);
 }
 
 void loop() {
@@ -295,14 +291,14 @@ void loop() {
     // read the incoming data:
     x_str             = Serial.readString();
 
-    ind1              = x_str.indexOf('/');  //finds location of first ,
-    position_received = x_str.substring(0, ind1);
-    distance_received = x_str.substring(ind1+1);
+    // ind1              = x_str.indexOf('/');             //finds location of first ,
+    // position_received = x_str.substring(0, ind1);
+    // distance_received = x_str.substring(ind1+1);
 
-    ind1              = x_str.indexOf('/');  //finds location of first ,
-    FR_received       = x_str.substring(0, ind1);   //captures first data String
-    ind2              = x_str.indexOf('/', ind1+1 );   //finds location of second ,
-    RR_received       = x_str.substring(ind1+1, ind2);   //captures second data String
+    ind1              = x_str.indexOf('/');             //finds location of first ,
+    FR_received       = x_str.substring(0, ind1);       //captures first data String
+    ind2              = x_str.indexOf('/', ind1+1 );    //finds location of second ,
+    RR_received       = x_str.substring(ind1+1, ind2);  //captures second data String
     ind3              = x_str.indexOf('/', ind2+1 );
     FL_received       = x_str.substring(ind2+1, ind3);
     ind4              = x_str.indexOf('/', ind3+1 );

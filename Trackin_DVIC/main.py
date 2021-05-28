@@ -188,11 +188,9 @@ def thread_listen_server(lock, socket):
 
     while(True):
         data, addr = socket.recvfrom(1024)
-        print("MESSAGE SERVE : ", data)
         
         with lock: 
             message_server = data.decode()
-            print("MESSAGE SERVE : ", message_server)
 
             result_A = np.where(dictionary_order[:4] == message_server)
             if result_A[0].shape[0] > 0:
