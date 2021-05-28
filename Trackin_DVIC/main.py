@@ -2,13 +2,15 @@ from utils.fonction import *
 from utils.list_ports import *
 from serial import Serial
 
-import os
-import numpy as np
-import pyzed.sl as sl
-import threading
 import argparse
 import cv2
+import numpy as np
+import os
+import pyzed.sl as sl
+import threading
 import time
+import socket
+
 
 """
     INFO    : This is all Global variable.
@@ -21,6 +23,14 @@ data_detection     = np.zeros(3)                                                
 data_position      = np.zeros(3)
 lock               = threading.Lock(),
 last_command_micro = np.zeros(4)                                                        # format(moteur1FR/moteur2BR/moteur3FL/moteur4BL)
+
+"""
+Define the IP address and the Port Number
+"""
+IP               = "172.21.72.168"
+PORT             = 5000
+listeningAddress = (IP, PORT)
+
 
 def initialize():
     """
@@ -82,14 +92,14 @@ def initialize():
         print(f"[WAIT] Waiting for good ultrason data.")
     print(f"[INIT] - open microcontroler on port {port_name}.")
 
-    # INIT SERVER PARAM AND SETUP SOCKET.
+    # INIT SERVER PARAM AND SETUP SOCKET.   
     sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-    sock.bind((get_ip_address((bytes("{0}".format(args.id_name), 'utf-8'))), 8081))
+    sock.bind(listeningAddress)
     print(f"[INIT] - open server communication.")
 
     # CHANGE STATE.
-    # global_state = Robot_state.WAITING
-    global_state = Robot_state.FOLLOWING
+    global_state = Robot_state.WAITING
+    # global_state = Robot_state.FOLLOWING
 
     # SEND PARAM.
     params = ParamsInit(zed, image, pose, ser, sock, runtime, objects, obj_runtime_param)
@@ -108,7 +118,7 @@ def send_command_v2(current_command, new_command, ser):
         message_string += str(new_command[2]) + "/"
         message_string += str(new_command[3])
         ser.write(message_string.encode())
-        print("MESSAGE : ", message_string)
+        # print("MESSAGE : ", message_string)
         last_command    = new_command
 
     return last_command
@@ -149,7 +159,7 @@ def manual_mode(user_command, last_command_micro, ser):
 
     last_command_micro = send_command_v2(last_command_micro, command_micro, ser)
 
-def thread_listen_server(socket):
+def thread_listen_server(lock, socket):
     """
         DESCRIPTION  : This thread will listen the server and transfert instruction from it.
     """
@@ -174,11 +184,15 @@ def thread_listen_server(socket):
                     ["10"             ]
     ])
 
+    # print("thread_listen_server WHILE")
+
     while(True):
         data, addr = socket.recvfrom(1024)
+        print("MESSAGE SERVE : ", data)
         
         with lock: 
             message_server = data.decode()
+            print("MESSAGE SERVE : ", message_server)
 
             result_A = np.where(dictionary_order[:4] == message_server)
             if result_A[0].shape[0] > 0:
@@ -397,9 +411,10 @@ def thread_listen_sensor(ser):
 
 if __name__ == '__main__':
     params = initialize()
+    lock = threading.Lock()
 
     # Thread listen server.
-    thread_1 = threading.Thread(target=thread_listen_server, args=(params.socket,))
+    thread_1 = threading.Thread(target=thread_listen_server, args=(lock, params.socket,))
     thread_1.start()
 
     # Thread slam.
