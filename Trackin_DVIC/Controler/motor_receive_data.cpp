@@ -36,6 +36,28 @@ int RL_fwd_speed;
 #define LeftMotorDirPin2B 8  //Rear Left Motor direction pin 2 to Left  MODEL-X IN4 (K3)
 #define speedPinLB 12    //  Rear Wheel PWM pin connect Left MODEL-X ENB
 
+/* Constantes pour les broches */
+const byte TRIGGER_PIN = 36; // Broche TRIGGER
+const byte ECHO_PIN = 38;    // Broche ECHO
+
+const byte TRIGGER_PIN_B = 42; // Broche TRIGGER
+const byte ECHO_PIN_B = 40;    // Broche ECHO
+
+const byte TRIGGER_PIN_C = 46; // Broche TRIGGER
+const byte ECHO_PIN_C = 44;    // Broche ECHO
+
+const byte TRIGGER_PIN_D = 48; // Broche TRIGGER
+const byte ECHO_PIN_D = 50;    // Broche ECHO
+ 
+/* Constantes pour le timeout */
+const unsigned long MEASURE_TIMEOUT = 25000UL; // 25ms = ~8m à 340m/s
+const unsigned long MEASURE_TIMEOUT_B = 25000UL; // 25ms = ~8m à 340m/s
+const unsigned long MEASURE_TIMEOUT_C = 25000UL; // 25ms = ~8m à 340m/s
+const unsigned long MEASURE_TIMEOUT_D = 25000UL; // 25ms = ~8m à 340m/s
+
+/* Vitesse du son dans l'air en mm/us */
+const float SOUND_SPEED = 340.0 / 1000;
+
 /*motor control*/
 void go_advance(int speed){
     RL_fwd(speed);
@@ -180,7 +202,10 @@ void init_GPIO()
 
 void setup()
 {
-    Serial.print("INIT BEGIN...");
+    Serial.begin(115200);
+    Serial.setTimeout(100); 
+
+    Serial.print("INIT BEGINS...");
     init_GPIO();
 
     go_advance(SPEED);
@@ -233,8 +258,26 @@ void setup()
     stop_Stop();
     delay(1000);
 
-    Serial.begin(115200);
-    Serial.setTimeout(100);   
+    Serial.print("MOTORS             : DONE...");
+
+    /* Initialise les broches */
+    pinMode(TRIGGER_PIN, OUTPUT);
+    digitalWrite(TRIGGER_PIN, LOW); // La broche TRIGGER doit être à LOW au repos
+    pinMode(ECHO_PIN, INPUT);
+
+    pinMode(TRIGGER_PIN_B, OUTPUT);
+    digitalWrite(TRIGGER_PIN_B, LOW); // La broche TRIGGER doit être à LOW au repos
+    pinMode(ECHO_PIN_B, INPUT);
+
+    pinMode(TRIGGER_PIN_C, OUTPUT);
+    digitalWrite(TRIGGER_PIN_C, LOW); // La broche TRIGGER doit être à LOW au repos
+    pinMode(ECHO_PIN_C, INPUT);
+
+    pinMode(TRIGGER_PIN_D, OUTPUT);
+    digitalWrite(TRIGGER_PIN_D, LOW); // La broche TRIGGER doit être à LOW au repos
+    pinMode(ECHO_PIN_D, INPUT);
+
+    Serial.print("ULTRASONIC SENSORS : DONE...");  
 
     Serial.print("INIT FINISHED...");
 }
@@ -322,4 +365,45 @@ void loop() {
       }
     }
   }
+
+  /* 1. Lance une mesure de distance en envoyant une impulsion HIGH de 10µs sur la broche TRIGGER */
+  digitalWrite(TRIGGER_PIN, HIGH);
+  delayMicroseconds(10);
+  digitalWrite(TRIGGER_PIN, LOW);
+  
+  /* 2. Mesure le temps entre l'envoi de l'impulsion ultrasonique et son écho (si il existe) */
+  long measure = pulseIn(ECHO_PIN, HIGH, MEASURE_TIMEOUT);
+
+  /* 1B. Lance une mesure de distance en envoyant une impulsion HIGH de 10µs sur la broche TRIGGER */
+  digitalWrite(TRIGGER_PIN_B, HIGH);
+  delayMicroseconds(10);
+  digitalWrite(TRIGGER_PIN_B, LOW);
+  
+  /* 2B. Mesure le temps entre l'envoi de l'impulsion ultrasonique et son écho (si il existe) */
+  long measure_B = pulseIn(ECHO_PIN_B, HIGH, MEASURE_TIMEOUT_B);
+
+  /* 1C. Lance une mesure de distance en envoyant une impulsion HIGH de 10µs sur la broche TRIGGER */
+  digitalWrite(TRIGGER_PIN_C, HIGH);
+  delayMicroseconds(10);
+  digitalWrite(TRIGGER_PIN_C, LOW);
+  
+  /* 2C. Mesure le temps entre l'envoi de l'impulsion ultrasonique et son écho (si il existe) */
+  long measure_C = pulseIn(ECHO_PIN_C, HIGH, MEASURE_TIMEOUT_C);
+
+  /* 1D. Lance une mesure de distance en envoyant une impulsion HIGH de 10µs sur la broche TRIGGER */
+  digitalWrite(TRIGGER_PIN_D, HIGH);
+  delayMicroseconds(10);
+  digitalWrite(TRIGGER_PIN_D, LOW);
+  
+//   /* 2D. Mesure le temps entre l'envoi de l'impulsion ultrasonique et son écho (si il existe) */
+  long measure_D = pulseIn(ECHO_PIN_D, HIGH, MEASURE_TIMEOUT_D);
+   
+  /* 3. Calcul la distance à partir du temps mesuré */
+  float distance_mm = measure / 2.0 * SOUND_SPEED;
+  float distance_mm_B = measure_B / 2.0 * SOUND_SPEED;
+  float distance_mm_C = measure_C / 2.0 * SOUND_SPEED;
+  float distance_mm_D = measure_D / 2.0 * SOUND_SPEED;
+
+  String message = String(distance_mm)+"/"+String(distance_mm_B)+"/"+String(distance_mm_C)+"/"+String(distance_mm_D)+"/";
+  Serial.println(message);   
 }
