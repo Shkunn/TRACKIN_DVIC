@@ -205,9 +205,9 @@ void setup()
     Serial.begin(115200);
     Serial.setTimeout(100); 
 
-    Serial.print("INIT BEGINS...");
+    //Serial.print("INIT BEGINS...");
     init_GPIO();
-
+    /*
     go_advance(SPEED);
     delay(1000);
     stop_Stop();
@@ -258,7 +258,7 @@ void setup()
     stop_Stop();
     delay(1000);
 
-    Serial.print("MOTORS             : DONE...");
+    Serial.print("MOTORS             : DONE...");*/
 
     /* Initialise les broches */
     pinMode(TRIGGER_PIN, OUTPUT);
@@ -277,15 +277,21 @@ void setup()
     digitalWrite(TRIGGER_PIN_D, LOW); // La broche TRIGGER doit être à LOW au repos
     pinMode(ECHO_PIN_D, INPUT);
 
-    Serial.print("ULTRASONIC SENSORS : DONE...");  
+    // Serial.print("ULTRASONIC SENSORS : DONE...");  
 
-    Serial.print("INIT FINISHED...");
+    // Serial.print("INIT FINISHED...");
+
+    pinMode(LED_BUILTIN, OUTPUT);
 }
 
 void loop() {
 
+  digitalWrite(LED_BUILTIN, LOW);
+
   if (Serial.available() > 0) 
   {
+    digitalWrite(LED_BUILTIN, HIGH);
+
     // read the incoming data:
     x_str             = Serial.readString();
 
@@ -303,34 +309,34 @@ void loop() {
     RL_received       = x_str.substring(ind3+1);
 
 
-    Serial.print("Received : ");
-    Serial.print(FR_received);
-    Serial.print(" / ");
-    Serial.print(RR_received);
-    Serial.print(" / ");
-    Serial.print(FL_received);
-    Serial.print(" / ");
-    Serial.print(RL_received);
+    // Serial.print("Received : ");
+    // Serial.print(FR_received);
+    // Serial.print(" / ");
+    // Serial.print(RR_received);
+    // Serial.print(" / ");
+    // Serial.print(FL_received);
+    // Serial.print(" / ");
+    // Serial.print(RL_received);
 
 
     if(FR_received.toFloat() == 500 && RR_received.toFloat() == 500 && FL_received.toFloat() == 500 && RL_received.toFloat() == 500)
     {
-        Serial.print(" RIGHT SHIFT ");
+        // Serial.print(" RIGHT SHIFT ");
         right_shift(200,200,200,200);
     }
     else if(FR_received.toFloat() == 600 && RR_received.toFloat() == 600 && FL_received.toFloat() == 600 && RL_received.toFloat() == 600)
     {
-        Serial.print(" LEFT SHIFT ");
+        // Serial.print(" LEFT SHIFT ");
         left_shift(200,200,200,200);
     }
     else if(FR_received.toFloat() == 0 && RR_received.toFloat() == 0 && FL_received.toFloat() == 0 && RL_received.toFloat() == 0)
     {
-        Serial.print(" STOP ");
+        // Serial.print(" STOP ");
         stop_Stop();
     }
     else
     {
-      Serial.print(" MOTOR ACTION ");
+    //   Serial.print(" MOTOR ACTION ");
       
       if(FR_received.toFloat() > 600)
       {

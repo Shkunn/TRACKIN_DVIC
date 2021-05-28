@@ -2,9 +2,11 @@ from typing import NamedTuple
 from serial import Serial
 
 import pyzed.sl as sl
+import numpy as np
 import socket
 import fcntl
 import struct
+
 
 class Robot_state:
     INITIALISATION  = "initialisation"
@@ -77,6 +79,7 @@ def check_ultrason_init(ser):
                 the ultrason sensor connection is working.
     ''' 
 
+    data_ultrasensor = np.zeros(4)
     data = ser.readline()
     encodor_data  = (data.decode('utf-8')).split(sep='/')
     

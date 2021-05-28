@@ -2,6 +2,7 @@ from utils.fonction import *
 from utils.list_ports import *
 from serial import Serial
 
+import os
 import numpy as np
 import pyzed.sl as sl
 import threading
@@ -87,7 +88,8 @@ def initialize():
     print(f"[INIT] - open server communication.")
 
     # CHANGE STATE.
-    global_state = Robot_state.WAITING
+    # global_state = Robot_state.WAITING
+    global_state = Robot_state.FOLLOWING
 
     # SEND PARAM.
     params = ParamsInit(zed, image, pose, ser, sock, runtime, objects, obj_runtime_param)
@@ -274,9 +276,11 @@ def thread_compute_command(params):
             INFO     : We will see if we have access to all data in this thread.
         """
         # ultra son data.
+        # sos.system('cls' if os.name == 'nt' else 'clear')
         print("Data Ultra song : ", data_ultrasensor)
         print("Data position   : ", data_position)
         print("Data detection  : ", data_detection)
+        print("Robot_state     : ", global_state)
         print("\n")
         time.sleep(0.1)
 
@@ -339,8 +343,9 @@ def thread_compute_command(params):
                     command_micro = np.array([ 800, 800, 800, 800])
                     last_command_micro = send_command_v2(last_command_micro, command_micro, ser)
 
-                command_micro = np.array([   0,   0,   0,   0])
-                last_command_micro = send_command_v2(last_command_micro, command_micro, ser)
+                if not new_command:
+                    command_micro = np.array([   0,   0,   0,   0])
+                    last_command_micro = send_command_v2(last_command_micro, command_micro, ser)
                 
                 
 
