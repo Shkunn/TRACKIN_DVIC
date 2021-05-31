@@ -84,7 +84,7 @@ def initialize():
     # OPEN COMMUNICATION WITH MICRO-CONTROLER.
     port_name = get_usb()                                                           # get automaticly the micro controler.
     ser = Serial(port_name, 115200)
-    commande_motor = 'e'
+    print(f"[TRYY] Try to open on port {port_name}.")
     if(ser.write(commande_motor.encode()) != 1):
         print(f"[ERR0] Can't call microcontroler on port {port_name}.")
         exit(-1)
