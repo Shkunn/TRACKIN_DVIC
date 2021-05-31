@@ -21,7 +21,7 @@ message_server     = None
 data_ultrasensor   = np.zeros(4)
 data_detection     = np.zeros(3)                                                        # format(axes y position, distance, nombre object)
 data_position      = np.zeros(3)
-lock               = threading.Lock(),
+lock               = threading.Lock()
 last_command_micro = np.zeros(4)                                                        # format(moteur1FR/moteur2BR/moteur3FL/moteur4BL)
 
 """
@@ -84,12 +84,12 @@ def initialize():
     # OPEN COMMUNICATION WITH MICRO-CONTROLER.
     port_name = get_usb()                                                           # get automaticly the micro controler.
     ser = Serial(port_name, 115200)
-    print(f"[TRYY] Try to open on port {port_name}.")
+    commande_motor = 'e'
     if(ser.write(commande_motor.encode()) != 1):
         print(f"[ERR0] Can't call microcontroler on port {port_name}.")
         exit(-1)
-    while(check_ultrason_init(ser) == False):                                       # check if data was different of zero.
-        print(f"[WAIT] Waiting for good ultrason data.")
+    # while(check_ultrason_init(ser) == False):                                       # check if data was different of zero.
+    #     print(f"[WAIT] Waiting for good ultrason data.")
     print(f"[INIT] - open microcontroler on port {port_name}.")
 
     # INIT SERVER PARAM AND SETUP SOCKET.   
@@ -118,7 +118,7 @@ def send_command_v2(current_command, new_command, ser):
         message_string += str(new_command[2]) + "/"
         message_string += str(new_command[3])
         ser.write(message_string.encode())
-        # print("MESSAGE : ", message_string)
+        print("MESSAGE : ", message_string)
         last_command    = new_command
 
     return last_command
@@ -157,7 +157,7 @@ def manual_mode(user_command, last_command_micro, ser):
     if(user_command == Control_user.DIAG_BACK_RIGHT):
         command_micro = np.array([ 800,   0,   0, 800])
 
-    last_command_micro = send_command_v2(last_command_micro, command_micro, ser)
+    return send_command_v2(last_command_micro, command_micro, ser)
 
 def thread_listen_server(lock, socket):
     """
@@ -261,11 +261,12 @@ def thread_slam(params):
             data_detection    = np.zeros(3)  
 
         # DEBUG SHOWING WINDOWS
-        cv2.WINDOW_NORMAL
-        cv2.namedWindow("windows",0)
-        cv2.imshow("windows", image_draw)
-        if cv2.waitKey(1) & 0xFF == ord('q'):
-            break
+        
+        # cv2.WINDOW_NORMAL
+        # cv2.namedWindow("windows",0)
+        # cv2.imshow("windows", image_draw)
+        # if cv2.waitKey(1) & 0xFF == ord('q'):
+        #     break
 
 def thread_compute_command(params):
     """
@@ -288,18 +289,20 @@ def thread_compute_command(params):
             INFO     : We will see if we have access to all data in this thread.
         """
         # ultra son data.
-        # sos.system('cls' if os.name == 'nt' else 'clear')
+        # os.system('cls' if os.name == 'nt' else 'clear')
         print("Data Ultra song : ", data_ultrasensor)
         print("Data position   : ", data_position)
         print("Data detection  : ", data_detection)
         print("Robot_state     : ", global_state)
+        print("User command    : ", user_command)
         print("\n")
         time.sleep(0.1)
 
         # main algo begin at this moment.
         if(global_state == Robot_state.MANUALMODE):
             # in this mode, operator can control all robot action.
-            manual_mode(user_command, last_command_micro, ser)
+            last_command_micro = manual_mode(user_command, last_command_micro, ser)
+            print("LAST COMMAND : ", last_command_micro)
 
         if(global_state == Robot_state.FOLLOWING or global_state == Robot_state.LOST):
             # in this mode, the robot need to see humain and follow them.
@@ -424,10 +427,10 @@ if __name__ == '__main__':
     thread_3.start()
 
     # Thread listen sensor.
-    thread_4 = threading.Thread(target=thread_listen_sensor, args=(params.ser,))
-    thread_4.start()
+    # thread_4 = threading.Thread(target=thread_listen_sensor, args=(params.ser,))
+    # thread_4.start()
 
     thread_1.join()
     thread_2.join()
     thread_3.join()
-    thread_4.join()
+    # thread_4.join()
