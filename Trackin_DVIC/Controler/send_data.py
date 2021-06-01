@@ -4,7 +4,7 @@ import numpy as np
 
 arduino = Serial(port='/dev/ttyACM0', baudrate=115200, timeout=.1)
 
-def write_read(FR, RR, FL, RL):
+def write_read(bf1, FR, bf2, RR, bf3, FL, bf4, RL):
     """
         DESCRIPTION  : Send data to micro controler
 
@@ -25,7 +25,7 @@ def write_read(FR, RR, FL, RL):
     # arduino.write(out_arr.encode())
     # time.sleep(0.05)
 
-    message = str(FR) + "/" + str(RR) + "/" + str(FL) + "/" + str(RL) 
+    message = str(bf1) + "/" + str(FR) + "/" + str(bf2) + "/" + str(RR) +  "/" + str(bf3) + "/" + str(FL) + "/" + str(bf4) + "/" + str(RL) 
 
     arduino.write(message.encode())
 
@@ -48,10 +48,14 @@ if __name__ == "__main__":
 
     while True:
 
-        FR    = input("Enter a moteur FR: ")
-        RR    = input("Enter a moteur RR: ")
-        FL    = input("Enter a moteur FL: ")
-        RL    = input("Enter a moteur RL: ")
+        bf1   = input("Enter a moteur bf1 : ")
+        FR    = input("Enter a moteur FR  : ")
+        bf2   = input("Enter a moteur bf2 : ")
+        RR    = input("Enter a moteur RR  : ")
+        bf3   = input("Enter a moteur bf3 : ")
+        FL    = input("Enter a moteur FL  : ")
+        bf4   = input("Enter a moteur bf4 : ")
+        RL    = input("Enter a moteur RL  : ")
 
-        message = write_read(FR, RR, FL, RL)
+        message = write_read(bf1, FR, bf2, RR, bf3, FL, bf4, RL)
         print(message)

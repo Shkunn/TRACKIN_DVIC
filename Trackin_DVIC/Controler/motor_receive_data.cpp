@@ -1,7 +1,5 @@
 #include <Arduino.h>
 
-String distance_received;
-String position_received;
 String x_str;
 
 String FR_received;
@@ -9,11 +7,19 @@ String RR_received;
 String FL_received;
 String RL_received;
 
-int x_int;
+String bf1;
+String bf2;
+String bf3;
+String bf4;
+
 int ind1;
 int ind2;
 int ind3;
 int ind4;
+int ind5;
+int ind6;
+int ind7;
+int ind8;
 
 int FR_fwd_speed;
 int RR_fwd_speed;
@@ -23,17 +29,17 @@ int RL_fwd_speed;
 #define SPEED 140    
 #define TURN_SPEED 160    
 #define speedPinR 9   //  Front Wheel PWM pin connect Right MODEL-X ENA 
-#define RightMotorDirPin1  22    //Front Right Motor direction pin 1 to Right MODEL-X IN1  (K1)
-#define RightMotorDirPin2  24   //Front Right Motor direction pin 2 to Right MODEL-X IN2   (K1)                                 
-#define LeftMotorDirPin1  26    //Front Left Motor direction pin 1 to Right MODEL-X IN3 (K3)
-#define LeftMotorDirPin2  28   //Front Left Motor direction pin 2 to Right MODEL-X IN4 (K3)
+#define RightMotorDirPin1  24    //Front Right Motor direction pin 1 to Right MODEL-X IN1  (K1)
+#define RightMotorDirPin2  22   //Front Right Motor direction pin 2 to Right MODEL-X IN2   (K1)                                 
+#define LeftMotorDirPin1  28    //Front Left Motor direction pin 1 to Right MODEL-X IN3 (K3)
+#define LeftMotorDirPin2  26   //Front Left Motor direction pin 2 to Right MODEL-X IN4 (K3)
 #define speedPinL 10   //  Front Wheel PWM pin connect Right MODEL-X ENB
 
 #define speedPinRB 11   //  Rear Wheel PWM pin connect Left MODEL-X ENA 
-#define RightMotorDirPin1B  5    //Rear Right Motor direction pin 1 to Left  MODEL-X IN1 ( K1)
-#define RightMotorDirPin2B 6    //Rear Right Motor direction pin 2 to Left  MODEL-X IN2 ( K1) 
-#define LeftMotorDirPin1B 7    //Rear Left Motor direction pin 1 to Left  MODEL-X IN3  (K3)
-#define LeftMotorDirPin2B 8  //Rear Left Motor direction pin 2 to Left  MODEL-X IN4 (K3)
+#define RightMotorDirPin1B  6    //Rear Right Motor direction pin 1 to Left  MODEL-X IN1 ( K1)
+#define RightMotorDirPin2B 5   //Rear Right Motor direction pin 2 to Left  MODEL-X IN2 ( K1) 
+#define LeftMotorDirPin1B 8    //Rear Left Motor direction pin 1 to Left  MODEL-X IN3  (K3)
+#define LeftMotorDirPin2B 7  //Rear Left Motor direction pin 2 to Left  MODEL-X IN4 (K3)
 #define speedPinLB 12    //  Rear Wheel PWM pin connect Left MODEL-X ENB
 
 /* Constantes pour les broches */
@@ -292,31 +298,43 @@ void loop() {
     // read the incoming data:
     x_str             = Serial.readString();
 
-    // ind1              = x_str.indexOf('/');             //finds location of first ,
-    // position_received = x_str.substring(0, ind1);
-    // distance_received = x_str.substring(ind1+1);
-
     ind1              = x_str.indexOf('/');             //finds location of first ,
-    FR_received       = x_str.substring(0, ind1);       //captures first data String
-    ind2              = x_str.indexOf('/', ind1+1 );    //finds location of second ,
-    RR_received       = x_str.substring(ind1+1, ind2);  //captures second data String
-    ind3              = x_str.indexOf('/', ind2+1 );
-    FL_received       = x_str.substring(ind2+1, ind3);
+    bf1               = x_str.substring(0, ind1);       //captures first data String
+    ind2              = x_str.indexOf('/', ind1+1 );
+    FR_received       = x_str.substring(ind1+1, ind2);       //captures first data String
+    ind3              = x_str.indexOf('/', ind2+1 );    //finds location of second ,
+    bf2               = x_str.substring(ind2+1, ind3);
     ind4              = x_str.indexOf('/', ind3+1 );
-    RL_received       = x_str.substring(ind3+1);
+    RR_received       = x_str.substring(ind3+1, ind4);  //captures second data String
+    ind5              = x_str.indexOf('/', ind4+1 );
+    bf3               = x_str.substring(ind4+1, ind5);
+    ind6              = x_str.indexOf('/', ind5+1 );            //finds location of first ,
+    FL_received       = x_str.substring(ind5+1, ind6);
+    ind7              = x_str.indexOf('/', ind6+1 );    //finds location of second ,
+    bf4               = x_str.substring(ind6+1, ind7);
+    ind8              = x_str.indexOf('/', ind7+1 );
+    RL_received       = x_str.substring(ind7+1, ind8);
 
 
-    // Serial.print("Received : ");
-    // Serial.print(FR_received);
-    // Serial.print(" / ");
-    // Serial.print(RR_received);
-    // Serial.print(" / ");
-    // Serial.print(FL_received);
-    // Serial.print(" / ");
-    // Serial.print(RL_received);
+    Serial.print("Received : ");
+    Serial.print(bf1);
+    Serial.print(" / ");
+    Serial.print(FR_received);
+    Serial.print(" / ");
+    Serial.print(bf2);
+    Serial.print(" / ");
+    Serial.print(RR_received);
+    Serial.print(" / ");
+    Serial.print(bf3);
+    Serial.print(" / ");
+    Serial.print(FL_received);
+    Serial.print(" / ");
+    Serial.print(bf4);
+    Serial.print(" / ");
+    Serial.print(RL_received);
 
 
-    if(FR_received.toFloat() == 500 && RR_received.toFloat() == 500 && FL_received.toFloat() == 500 && RL_received.toFloat() == 500)
+    if(FR_received.toFloat() == 700 && RR_received.toFloat() == 700 && FL_received.toFloat() == 700 && RL_received.toFloat() == 700)
     {
         // Serial.print(" RIGHT SHIFT ");
         right_shift(200,200,200,200);
@@ -328,40 +346,41 @@ void loop() {
     }
     else if(FR_received.toFloat() == 0 && RR_received.toFloat() == 0 && FL_received.toFloat() == 0 && RL_received.toFloat() == 0)
     {
-        // Serial.print(" STOP ");
         stop_Stop();
     }
+
+    // 0: Forward
+    // 1: Backward
+
     else
-    {
-    //   Serial.print(" MOTOR ACTION ");
-      
-      if(FR_received.toFloat() > 600)
+    {      
+      if(bf1.toFloat() == 1)
       {
-        FR_bck(FR_received.toFloat() - 600);
+        FR_bck(FR_received.toFloat());
       }
       else{
         FR_fwd(FR_received.toFloat());
       }
 
-      if(RR_received.toFloat() > 600)
+      if(bf2.toFloat() == 1)
       {
-        RR_bck(RR_received.toFloat() - 600);
+        RR_bck(RR_received.toFloat());
       }
       else{
         RR_fwd(RR_received.toFloat());
       }
 
-      if(FL_received.toFloat() > 600)
+      if(bf3.toFloat() == 1)
       {
-        FL_bck(FL_received.toFloat() - 600);
+        FL_bck(FL_received.toFloat());
       }
       else{
         FL_fwd(FL_received.toFloat());
       }
 
-      if(RL_received.toFloat() > 600)
+      if(bf4.toFloat() == 1)
       {
-        RL_bck(RL_received.toFloat() - 600);
+        RL_bck(RL_received.toFloat());
       }
       else{
         RL_fwd(FR_received.toFloat());
@@ -408,5 +427,5 @@ void loop() {
   float distance_mm_D = measure_D / 2.0 * SOUND_SPEED;
 
   String message = String(distance_mm)+"/"+String(distance_mm_B)+"/"+String(distance_mm_C)+"/"+String(distance_mm_D)+"/";
-  Serial.println(message);   
+  // Serial.println(message);   
 }
