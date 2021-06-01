@@ -54,7 +54,7 @@ def initialize():
     if(args.debug == "1"):
         is_debug_option = True
 
-    fd = args.fd
+    fd = float(args.fd)
     
     # ZED CAMERA CONFIGURATION.        
     zed = sl.Camera()
