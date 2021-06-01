@@ -23,7 +23,7 @@ data_detection     = np.zeros(3)                                                
 data_position      = np.zeros(3)
 lock               = threading.Lock()
 last_command_micro = np.zeros(4)                                                        # format(moteur1FR/moteur2BR/moteur3FL/moteur4BL)
-keypoint_to_home   = np.zeros((3,1))                                                    # format(format(axes y position, distance, nombre object))
+keypoint_to_home   = np.zeros((1,3))                                                    # format(format(axes y position, distance, nombre object))
 
 """
 Define the IP address and the Port Number
