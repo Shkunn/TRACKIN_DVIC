@@ -320,7 +320,8 @@ def thread_compute_command(params):
         # os.system('cls' if os.name == 'nt' else 'clear')
         # print("Data Ultra song : ", data_ultrasensor)
         np.set_printoptions(suppress = True)
-        print("Data position   : ", data_position)
+        if(is_debug_option):
+            print("Data position   : ", data_position)
         # print("Data detection  : ", data_detection)
         # print("Robot_state     : ", global_state)
         # print("User command    : ", user_command)
