@@ -423,8 +423,8 @@ def thread_compute_command(params):
                 if (current_angle - angle_direction) % 360 > 180:
                     distance_deg = 360 - ((current_angle - angle_direction) % 360)
                     if distance_deg > threshold_angle:
-                        # go left.
-                        command_micro = np.array([ 600, 600, 600, 600])
+                        # turn left.
+                        command_micro = np.array([ 200, 200, 800, 800])
                         last_command_micro = send_command_v2(last_command_micro, command_micro, ser)
                     else:
                         # GO forward.
@@ -433,8 +433,8 @@ def thread_compute_command(params):
                 else:
                     distance_deg = (current_angle - angle_direction) % 360
                     if distance_deg > threshold_angle:
-                        # GO right.
-                        command_micro = np.array([ 500, 500, 500, 500])
+                        # turn right.
+                        command_micro = np.array([ 800, 800, 200, 200])
                         last_command_micro = send_command_v2(last_command_micro, command_micro, ser)
                     else:
                         # GO forward.
