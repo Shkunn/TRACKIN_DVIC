@@ -24,7 +24,7 @@ data_position      = np.zeros(3)
 lock               = threading.Lock()
 last_command_micro = np.zeros(4)                                                        # format(moteur1FR/moteur2BR/moteur3FL/moteur4BL)
 keypoint_to_home   = np.zeros((1,3))                                                    # format(format(axes y position, distance, nombre object))
-is_debug_option       = False
+is_debug_option    = False
 
 """
 Define the IP address and the Port Number
@@ -300,7 +300,7 @@ def thread_compute_command(params):
                     and take decision to send to micro controler.
     """
     zed, image, pose, ser, sock, runtime, objects, obj_runtime_param = params
-    global data_ultrasensor, data_position, data_detection, global_state, user_command, last_command_micro, keypoint_to_home, debug_option
+    global data_ultrasensor, data_position, data_detection, global_state, user_command, last_command_micro, keypoint_to_home, is_debug_option
 
     """
         INFO         : This is all local variable required for this thread.
