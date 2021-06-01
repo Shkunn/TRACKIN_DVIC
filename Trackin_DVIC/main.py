@@ -234,7 +234,7 @@ def thread_slam(params):
         zed.get_position(pose)                                                          # get position of robot.
 
         translation      = pose.pose_data().m[:3,3]
-        _,  oy,  _       = pose.get_euler_angles()       
+        _,  oy,  _       = pose.get_euler_angles(radian=False)       
         data_position[0] = translation[0]
         data_position[1] = translation[2]      
         data_position[2] = oy  
@@ -297,13 +297,14 @@ def thread_compute_command(params):
             INFO     : We will see if we have access to all data in this thread.
         """
         # ultra son data.
-        # os.system('cls' if os.name == 'nt' else 'clear')
-        print("Data Ultra song : ", data_ultrasensor)
+        os.system('cls' if os.name == 'nt' else 'clear')
+        # print("Data Ultra song : ", data_ultrasensor)
+        np.set_printoptions(suppress = True)
         print("Data position   : ", data_position)
-        print("Data detection  : ", data_detection)
-        print("Robot_state     : ", global_state)
-        print("User command    : ", user_command)
-        print("\n")
+        # print("Data detection  : ", data_detection)
+        # print("Robot_state     : ", global_state)
+        # print("User command    : ", user_command)
+        # print("\n")
         time.sleep(0.1)
 
         # main algo begin at this moment.

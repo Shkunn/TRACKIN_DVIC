@@ -94,7 +94,7 @@ def check_ultrason_init(ser):
     return False
 
 def compute_distance_between_points(point_A, point_B):
-    return (((point_B[0,0] - point_A[0,0])**2)+((point_B[0,1] - point_A[0,1])**2))**2
+    return (((point_B[0] - point_A[0,0])**2)+((point_B[1] - point_A[0,1])**2))**0.5
 
 def check_if_new_keypoint(keypoints, current_position, threshold, debug):
     """
