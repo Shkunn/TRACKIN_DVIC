@@ -175,6 +175,7 @@ def thread_listen_server(lock, socket):
                     ["follow"         ],
                     ["home"           ],
                     ["manual"         ],
+                    ["reset"          ],
                     ["0"              ],
                     ["1"              ],
                     ["2"              ],
@@ -196,7 +197,7 @@ def thread_listen_server(lock, socket):
         with lock: 
             message_server = data.decode()
 
-            result_A = np.where(dictionary_order[:4] == message_server)
+            result_A = np.where(dictionary_order[:5] == message_server)
             if result_A[0].shape[0] > 0:
 
                 # MODE ORDER
@@ -211,8 +212,11 @@ def thread_listen_server(lock, socket):
                     
                 if message_server == Robot_state.MANUALMODE:
                     global_state = Robot_state.MANUALMODE
+
+                if message_server == Robot_state.RESET:
+                    global_state = Robot_state.RESET
                     
-            result_B = np.where(dictionary_order[4:] == message_server)
+            result_B = np.where(dictionary_order[5:] == message_server)
             if result_B[0].shape[0] > 0:
 
                 # MANUAL COMMAND ORDER
@@ -268,6 +272,13 @@ def thread_slam(params):
             data_detection[2] = len(objects.object_list)
         else:
             data_detection    = np.zeros(3)  
+
+        # RESET MODE.
+        if(global_state == Robot_state.RESET):
+            if(zed.reset_positional_tracking() != sl.ERROR_CODE.SUCCESS):
+                print("[ERRO] can't reset positional tracking.")
+                exit(-1)
+            global_state = Robot_state.WAITING
 
         # DEBUG SHOWING WINDOWS
         
@@ -437,6 +448,13 @@ def thread_compute_command(params):
         if(global_state == Robot_state.WAITING):
             # we send stop command to engine, or we do something fun idk.
             pass
+        
+        if(global_state == Robot_state.RESET):
+            # SPECIAL RESET MODE FOR DEBUG.
+            command_micro = np.array([   0,   0,   0,   0])
+            last_command_micro = send_command_v2(last_command_micro, command_micro, ser)
+            keypoint_to_home = np.zeros((1,3))
+
 
 def thread_listen_sensor(ser):
     """

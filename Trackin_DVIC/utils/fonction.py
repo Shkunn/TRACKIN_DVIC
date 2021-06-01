@@ -16,6 +16,7 @@ class Robot_state:
     LOST            = "lost"
     HOME            = "home"
     MANUALMODE      = "manual"
+    RESET           = "reset"
  
 class Control_user: 
     STOP            = "0"
