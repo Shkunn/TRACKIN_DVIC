@@ -2,6 +2,7 @@ from utils.fonction import *
 from utils.list_ports import *
 from serial import Serial
 
+import math as m
 import argparse
 import cv2
 import numpy as np
@@ -48,7 +49,7 @@ def initialize():
     args = parser.parse_args()
 
     # DEBUG OPTION.
-    if(args.debug == '1'):
+    if(args.debug == "1"):
         is_debug_option = True
     
     # ZED CAMERA CONFIGURATION.        
@@ -57,7 +58,7 @@ def initialize():
     init_params.camera_resolution = sl.RESOLUTION.HD720                             # Use HD720 video mode.
     init_params.camera_fps = 15                             
     init_params.coordinate_units = sl.UNIT.METER                                    # Set coordinate units.
-    init_params.coordinate_system = sl.COORDINATE_SYSTEM.RIGHT_HANDED_Y_UP
+    init_params.coordinate_system = sl.COORDINATE_SYSTEM.RIGHT_HANDED_Z_UP_X_FWD
     
     if(zed.open(init_params) != sl.ERROR_CODE.SUCCESS):                             
         print("[ERR0] Can't open camera zed 2.")
@@ -242,11 +243,13 @@ def thread_slam(params):
         zed.retrieve_image(image, sl.VIEW.LEFT)                             
         zed.get_position(pose)                                                          # get position of robot.
 
-        translation      = pose.pose_data().m[:3,3]
-        _,  oy,  _       = pose.get_euler_angles(radian=False)       
-        data_position[0] = translation[0]
-        data_position[1] = translation[2]      
-        data_position[2] = oy  
+        translation       = pose.pose_data().m[:3,3]
+        rotation          = pose.get_rotation_vector()  
+        if rotation[2] < 0:
+            rotation[2] += m.pi 
+    
+        data_position[:2] = translation[:2]
+        data_position[-1] = rotation[-1]  
 
         # CHECHING KEYPOINTS.
         if global_state != Robot_state.HOME and global_state != Robot_state.RESET:
@@ -320,8 +323,7 @@ def thread_compute_command(params):
         # os.system('cls' if os.name == 'nt' else 'clear')
         # print("Data Ultra song : ", data_ultrasensor)
         np.set_printoptions(suppress = True)
-        if(is_debug_option):
-            print("Data position   : ", data_position)
+        print("Data position   : ", data_position)
         # print("Data detection  : ", data_detection)
         # print("Robot_state     : ", global_state)
         # print("User command    : ", user_command)
@@ -424,7 +426,7 @@ def thread_compute_command(params):
                 # in this mode, the robot need to comeback to home.
                 next_keypoint      = keypoint_to_home[-1]
                 angle_direction    = calcul_vector((data_position[0], data_position[1]), (next_keypoint[0], next_keypoint[1]))
-                current_angle      = data_position[2]
+                current_angle      = data_position[2] * (180/m.pi)                                                                  # in deg.
                 command_micro      = None
 
                 if (current_angle - angle_direction) % 360 > 180:
@@ -470,7 +472,6 @@ def thread_compute_command(params):
             command_micro = np.array([   0,   0,   0,   0])
             last_command_micro = send_command_v2(last_command_micro, command_micro, ser)
             keypoint_to_home = np.zeros((1,3))
-
 
 def thread_listen_sensor(ser):
     """
