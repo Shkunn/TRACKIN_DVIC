@@ -23,6 +23,7 @@ data_detection     = np.zeros(3)                                                
 data_position      = np.zeros(3)
 lock               = threading.Lock()
 last_command_micro = np.zeros(4)                                                        # format(moteur1FR/moteur2BR/moteur3FL/moteur4BL)
+keypoint_to_home   = np.zeros((3,1))                                                    # format(format(axes y position, distance, nombre object))
 
 """
 Define the IP address and the Port Number
@@ -31,6 +32,7 @@ IP               = "172.21.72.168"
 PORT             = 5000
 listeningAddress = (IP, PORT)
 
+# ALL GENERAL FUNCTION.
 
 def initialize():
     """
@@ -159,6 +161,8 @@ def manual_mode(user_command, last_command_micro, ser):
 
     return send_command_v2(last_command_micro, command_micro, ser)
 
+# ALL THREAD FUNCTION.
+
 def thread_listen_server(lock, socket):
     """
         DESCRIPTION  : This thread will listen the server and transfert instruction from it.
@@ -221,7 +225,7 @@ def thread_slam(params):
                     data to other thread. It will also send camera flux to server.
     """
     zed, image, pose, ser, sock, runtime, objects, obj_runtime_param = params
-    global data_position, data_detection
+    global data_position, data_detection, keypoint_to_home
 
     while True:
         # GET IMAGE.
@@ -233,10 +237,14 @@ def thread_slam(params):
         _,  oy,  _       = pose.get_euler_angles()       
         data_position[0] = translation[0]
         data_position[1] = translation[2]      
-        data_position[2] = oy                                                           
+        data_position[2] = oy  
 
+        # CHECHING KEYPOINTS.
+        keypoint_to_home = check_if_new_keypoint(keypoint_to_home, data_position[None, :], threshold=0.2, debug=True)                                                         
+        
+        # CHECKING OBJECT DETECTION.
         zed.retrieve_objects(objects, obj_runtime_param)                                # get 3D objects detection.   
-        validation, i = get_id_nearest_humain(objects)                                  # sort all object.
+        validation, i    = get_id_nearest_humain(objects)                               # sort all object.
 
         # DRAW.
         image_draw = image.get_data()
@@ -302,7 +310,6 @@ def thread_compute_command(params):
         if(global_state == Robot_state.MANUALMODE):
             # in this mode, operator can control all robot action.
             last_command_micro = manual_mode(user_command, last_command_micro, ser)
-            print("LAST COMMAND : ", last_command_micro)
 
         if(global_state == Robot_state.FOLLOWING or global_state == Robot_state.LOST):
             # in this mode, the robot need to see humain and follow them.
@@ -427,10 +434,10 @@ if __name__ == '__main__':
     thread_3.start()
 
     # Thread listen sensor.
-    # thread_4 = threading.Thread(target=thread_listen_sensor, args=(params.ser,))
-    # thread_4.start()
+    thread_4 = threading.Thread(target=thread_listen_sensor, args=(params.ser,))
+    thread_4.start()
 
     thread_1.join()
     thread_2.join()
     thread_3.join()
-    # thread_4.join()
+    thread_4.join()
