@@ -24,6 +24,7 @@ data_position      = np.zeros(3)
 lock               = threading.Lock()
 last_command_micro = np.zeros(4)                                                        # format(moteur1FR/moteur2BR/moteur3FL/moteur4BL)
 keypoint_to_home   = np.zeros((1,3))                                                    # format(format(axes y position, distance, nombre object))
+is_debug_option       = False
 
 """
 Define the IP address and the Port Number
@@ -38,13 +39,17 @@ def initialize():
     """
         DESCRIPTION  : Init all parameters.
     """
-    global global_state
+    global global_state, is_debug_option
 
     # READ OPTION ARG.
     parser = argparse.ArgumentParser()
     parser.add_argument("id_name")                                                  # name to get ip adress.
-    parser.add_argument("option2")
+    parser.add_argument("debug")
     args = parser.parse_args()
+
+    # DEBUG OPTION.
+    if(args.debug == 1):
+        is_debug_option = True
     
     # ZED CAMERA CONFIGURATION.        
     zed = sl.Camera()
@@ -295,7 +300,7 @@ def thread_compute_command(params):
                     and take decision to send to micro controler.
     """
     zed, image, pose, ser, sock, runtime, objects, obj_runtime_param = params
-    global data_ultrasensor, data_position, data_detection, global_state, user_command, last_command_micro, keypoint_to_home
+    global data_ultrasensor, data_position, data_detection, global_state, user_command, last_command_micro, keypoint_to_home, debug_option
 
     """
         INFO         : This is all local variable required for this thread.
@@ -419,6 +424,7 @@ def thread_compute_command(params):
                 next_keypoint      = keypoint_to_home[-1]
                 angle_direction    = calcul_vector((data_position[0], data_position[1]), (next_keypoint[0], next_keypoint[1]))
                 current_angle      = data_position[2]
+                command_micro      = None
 
                 if (current_angle - angle_direction) % 360 > 180:
                     distance_deg = 360 - ((current_angle - angle_direction) % 360)
@@ -441,9 +447,17 @@ def thread_compute_command(params):
                         command_micro = np.array([ 200, 200, 200, 200])
                         last_command_micro = send_command_v2(last_command_micro, command_micro, ser)
 
+                if(is_debug_option):
+                    print("CURRENT ANGLE     = ", current_angle)
+                    print("ANGLE DIRECTION   = ", angle_direction)
+                    print("COMMAND_MICRO     = ", command_micro)
+
                 # Check if we reach keypoint.
                 if(check_if_we_reach_keypoint(data_position[None, :], next_keypoint, threshold_reach_keypoint)):
                     # we reach keypoint so delete last keypoint.
+                    if(is_debug_option):
+                        print("WE REACH KEYPOINT = ", keypoint_to_home[-1])
+
                     keypoint_to_home = np.delete(keypoint_to_home, -1, 0)
 
         if(global_state == Robot_state.WAITING):
