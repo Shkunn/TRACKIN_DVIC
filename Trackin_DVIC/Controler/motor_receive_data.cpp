@@ -226,12 +226,13 @@ void setup()
 
     //Serial.print("INIT BEGINS...");
     init_GPIO();
-    /*
+
     go_advance(SPEED);
     delay(1000);
     stop_Stop();
     delay(1000);
-
+    
+    /*
     go_back(SPEED);
     delay(1000);
     stop_Stop();

@@ -49,13 +49,9 @@ if __name__ == "__main__":
     while True:
 
         FR    = input("Enter a moteur FR: ")
-        RR   = input("Enter a moteur RR: ")
+        RR    = input("Enter a moteur RR: ")
         FL    = input("Enter a moteur FL: ")
         RL    = input("Enter a moteur RL: ")
-
-        # dist  = input("Enter a distance: ")
-
-        dist  = '100'
 
         message = write_read(FR, RR, FL, RL)
         print(message)

@@ -149,25 +149,25 @@ def manual_mode(user_command, last_command_micro, ser):
     if(user_command == Control_user.STOP):
         command_micro = np.array([  0*fd,  0*fd,  0*fd,  0*fd])
     if(user_command == Control_user.FORWARD):
-        command_micro = np.array([200*fd,200*fd,200*fd,200*fd])
+        command_micro = np.array([249*fd,249*fd,249*fd,249*fd])
     if(user_command == Control_user.BACKWARD):
-        command_micro = np.array([800*fd,800*fd,800*fd,800*fd])
+        command_micro = np.array([500*fd,500*fd,500*fd,500*fd])
     if(user_command == Control_user.LEFT):
         command_micro = np.array([   600,   600,   600,   600])
     if(user_command == Control_user.RIGHT):
-        command_micro = np.array([   500,   500,   500,   500])
+        command_micro = np.array([   700,   700,   700,   700])
     if(user_command == Control_user.TURN_LEFT):
-        command_micro = np.array([200*fd,200*fd,800*fd,800*fd])
+        command_micro = np.array([249*fd,249*fd,500*fd,500*fd])
     if(user_command == Control_user.TURN_RIGHT):
-        command_micro = np.array([800*fd,800*fd,200*fd,200*fd])
+        command_micro = np.array([500*fd,500*fd,249*fd,249*fd])
     if(user_command == Control_user.DIAG_FOR_LEFT):
-        command_micro = np.array([200*fd,  0*fd,  0*fd,200*fd])
+        command_micro = np.array([249*fd,  0*fd,  0*fd,249*fd])
     if(user_command == Control_user.DIAG_FOR_RIGHT):
-        command_micro = np.array([  0*fd,200*fd,200*fd,  0*fd])
+        command_micro = np.array([  0*fd,249*fd,249*fd,  0*fd])
     if(user_command == Control_user.DIAG_BACK_LEFT):
-        command_micro = np.array([  0*fd,800*fd,800*fd,  0*fd])
+        command_micro = np.array([  0*fd,500*fd,500*fd,  0*fd])
     if(user_command == Control_user.DIAG_BACK_RIGHT):
-        command_micro = np.array([800*fd,  0*fd,  0*fd,800*fd])
+        command_micro = np.array([500*fd,  0*fd,  0*fd,500*fd])
 
     return send_command_v2(last_command_micro, command_micro, ser)
 
@@ -351,19 +351,19 @@ def thread_compute_command(params):
                 if data_detection[0] > param_threshold_pixel_angle:
                     # need to turn right.
                     new_command = True
-                    command_micro = np.array([800*fd,800*fd,200*fd,200*fd])
+                    command_micro = np.array([500*fd,500*fd,249*fd,249*fd])
                     last_command_micro = send_command_v2(last_command_micro, command_micro, ser)
 
                 if data_detection[0] > param_threshold_pixel_angle and not new_command:
                     # need to turn left.
                     new_command = True
-                    command_micro = np.array([200*fd,200*fd,800*fd,800*fd])
+                    command_micro = np.array([249*fd,249*fd,500*fd,500*fd])
                     last_command_micro = send_command_v2(last_command_micro, command_micro, ser)
 
                 if data_detection[1] < (param_threshold_distance-param_plage_distance) and not new_command:
                     # need to forward.
                     new_command = True
-                    command_micro = np.array([200*fd,200*fd,200*fd,200*fd])
+                    command_micro = np.array([249*fd,249*fd,249*fd,249*fd])
 
                     # check if forward is available
                     if(data_detection[0] > 300 or data_detection[0] == 0):
@@ -382,7 +382,7 @@ def thread_compute_command(params):
 
                         if(data_detection[1] < data_detection[2]):
                             # go right
-                            command_micro = np.array([ 500, 500, 500, 500])
+                            command_micro = np.array([ 700, 700, 700, 700])
                             last_command_micro = send_command_v2(last_command_micro, command_micro, ser)
 
                         if((data_detection[1] < 300) and (data_detection[2]) < 300):
@@ -392,7 +392,7 @@ def thread_compute_command(params):
                 if (data_detection[1] > (param_threshold_distance+param_plage_distance)) and not new_command:
                     # need to backward.
                     new_command = True
-                    command_micro = np.array([800*fd,800*fd,800*fd,800*fd])
+                    command_micro = np.array([500*fd,500*fd,500*fd,500*fd])
                     last_command_micro = send_command_v2(last_command_micro, command_micro, ser)
 
                 if not new_command:
@@ -411,7 +411,7 @@ def thread_compute_command(params):
                     # we are in Robot_state.LOST since 2.0 secondes.
                     # so we will turn in one turn.
                     # Turn left.
-                    command_micro      = np.array([200*fd,200*fd,800*fd,800*fd])
+                    command_micro      = np.array([249*fd,249*fd,500*fd,500*fd])
                     last_command_micro = send_command_v2(last_command_micro, command_micro, ser)
                     turn_time          = time.time()
                     while((time.time() - turn_time) > 4):
@@ -443,21 +443,21 @@ def thread_compute_command(params):
                     distance_deg = 360 - ((current_angle - angle_direction) % 360)
                     if distance_deg > threshold_angle:
                         # turn left.
-                        command_micro = np.array([200*fd,200*fd,800*fd,800*fd])
+                        command_micro = np.array([249*fd,249*fd,500*fd,500*fd])
                         last_command_micro = send_command_v2(last_command_micro, command_micro, ser)
                     else:
                         # GO forward.
-                        command_micro = np.array([200*fd,200*fd,200*fd,200*fd])
+                        command_micro = np.array([249*fd,249*fd,249*fd,249*fd])
                         last_command_micro = send_command_v2(last_command_micro, command_micro, ser)
                 else:
                     distance_deg = (current_angle - angle_direction) % 360
                     if distance_deg > threshold_angle:
                         # turn right.
-                        command_micro = np.array([800*fd,800*fd,200*fd,200*fd])
+                        command_micro = np.array([500*fd,500*fd,249*fd,249*fd])
                         last_command_micro = send_command_v2(last_command_micro, command_micro, ser)
                     else:
                         # GO forward.
-                        command_micro = np.array([200*fd,200*fd,200*fd,200*fd])
+                        command_micro = np.array([249*fd,249*fd,249*fd,249*fd])
                         last_command_micro = send_command_v2(last_command_micro, command_micro, ser)
 
                 if(is_debug_option):
