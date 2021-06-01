@@ -26,7 +26,7 @@ lock               = threading.Lock()
 last_command_micro = np.zeros(4)                                                        # format(moteur1FR/moteur2BR/moteur3FL/moteur4BL)
 keypoint_to_home   = np.zeros((1,3))                                                    # format(format(axes y position, distance, nombre object))
 is_debug_option    = False
-fd                 = 0.5
+fd                 = 0.5                                                                # factor diminution of motor power
 
 """
 Define the IP address and the Port Number
@@ -41,17 +41,20 @@ def initialize():
     """
         DESCRIPTION  : Init all parameters.
     """
-    global global_state, is_debug_option
+    global global_state, is_debug_option, fd
 
     # READ OPTION ARG.
     parser = argparse.ArgumentParser()
     parser.add_argument("id_name")                                                  # name to get ip adress.
     parser.add_argument("debug")
+    parser.add_argument("fd")
     args = parser.parse_args()
 
     # DEBUG OPTION.
     if(args.debug == "1"):
         is_debug_option = True
+
+    fd = args.fd
     
     # ZED CAMERA CONFIGURATION.        
     zed = sl.Camera()
@@ -304,7 +307,7 @@ def thread_compute_command(params):
                     and take decision to send to micro controler.
     """
     zed, image, pose, ser, sock, runtime, objects, obj_runtime_param = params
-    global data_ultrasensor, data_position, data_detection, global_state, user_command, last_command_micro, keypoint_to_home, is_debug_option
+    global data_ultrasensor, data_position, data_detection, global_state, user_command, last_command_micro, keypoint_to_home, is_debug_option, fd
 
     """
         INFO         : This is all local variable required for this thread.
