@@ -292,6 +292,8 @@ def thread_compute_command(params):
     param_threshold_distance    = -1                                                   # distance between robot and human in meters.
     param_plage_distance        = 0.1                                                  # threshold_distance +- plage_distance
     param_threshold_pixel_angle = 30
+    threshold_angle             = 12                                                   # threshold to have to go to keypoint.
+    threshold_reach_keypoint    = 0.2                                                  # threshold to say we reach keypoint.
 
     while True:
         """
@@ -394,9 +396,43 @@ def thread_compute_command(params):
                         lost_time = time.time()
     
         if(global_state == Robot_state.HOME):
-            # in this mode, the robot need to comeback to home.
-            next_keypoint      = keypoint_to_home[-1]
-            print("VECTOR", calcul_vector((data_position[0], data_position[1]), (next_keypoint[0], next_keypoint[1])))
+            # Check if we are to home.
+            if keypoint_to_home.shape[0] == 0:
+                # change state.
+                global_state = Robot_state.WAITING
+                command_micro = np.array([   0,   0,   0,   0])
+                last_command_micro = send_command_v2(last_command_micro, command_micro, ser)
+            else:
+                # in this mode, the robot need to comeback to home.
+                next_keypoint      = keypoint_to_home[-1]
+                angle_direction    = calcul_vector((data_position[0], data_position[1]), (next_keypoint[0], next_keypoint[1]))
+                current_angle      = data_position[2]
+
+                if (current_angle - angle_direction) % 360 > 180:
+                    distance_deg = 360 - ((current_angle - angle_direction) % 360)
+                    if distance_deg > threshold_angle:
+                        # go left.
+                        command_micro = np.array([ 600, 600, 600, 600])
+                        last_command_micro = send_command_v2(last_command_micro, command_micro, ser)
+                    else:
+                        # GO forward.
+                        command_micro = np.array([ 200, 200, 200, 200])
+                        last_command_micro = send_command_v2(last_command_micro, command_micro, ser)
+                else:
+                    distance_deg = (current_angle - angle_direction) % 360
+                    if distance_deg > threshold_angle:
+                        # GO right.
+                        command_micro = np.array([ 500, 500, 500, 500])
+                        last_command_micro = send_command_v2(last_command_micro, command_micro, ser)
+                    else:
+                        # GO forward.
+                        command_micro = np.array([ 200, 200, 200, 200])
+                        last_command_micro = send_command_v2(last_command_micro, command_micro, ser)
+
+                # Check if we reach keypoint.
+                if(check_if_we_reach_keypoint(data_position[None, :], next_keypoint, threshold_reach_keypoint)):
+                    # we reach keypoint so delete last keypoint.
+                    keypoint_to_home = np.delete(keypoint_to_home, -1, 0)
 
         if(global_state == Robot_state.WAITING):
             # we send stop command to engine, or we do something fun idk.

@@ -125,7 +125,8 @@ def check_if_new_keypoint(keypoints, current_position, threshold, debug):
 
 def calcul_vector(current_position, keypoint):
     """
-        DESCRIPTION:
+        DESCRIPTION: calcul angle between current pose and keypoint in 
+                global reference.
         OUTPUT:
             * current_position = (x, y) index of current robot position.
             * testouille       = (x, y)
@@ -142,3 +143,12 @@ def calcul_vector(current_position, keypoint):
         angle_degree = (m.pi - angle_degree) + m.pi
 
     return angle_degree * (180/m.pi)
+
+def check_if_we_reach_keypoint(point_A, point_B, threshold):
+    """
+        DESCRIPTION: check if we reach keypoint.
+        INPUT:
+        * point_A    > 2 dimensions vector.
+        * point_B    > 1 dimension vector.
+    """
+    return compute_distance_between_points(point_A, point_B) < threshold
