@@ -244,7 +244,7 @@ def thread_slam(params):
         data_position[2] = oy  
 
         # CHECHING KEYPOINTS.
-        if global_state != Robot_state.HOME:
+        if global_state != Robot_state.HOME and global_state != Robot_state.RESET:
             keypoint_to_home = check_if_new_keypoint(keypoint_to_home, data_position[None, :], threshold=0.2, debug=True)                                                         
         
         # CHECKING OBJECT DETECTION.
@@ -275,7 +275,8 @@ def thread_slam(params):
 
         # RESET MODE.
         if(global_state == Robot_state.RESET):
-            if(zed.reset_positional_tracking() != sl.ERROR_CODE.SUCCESS):
+            reset_transform = sl.Transform()
+            if(zed.reset_positional_tracking(reset_transform) != sl.ERROR_CODE.SUCCESS):
                 print("[ERRO] can't reset positional tracking.")
                 exit(-1)
             global_state = Robot_state.WAITING
@@ -311,7 +312,7 @@ def thread_compute_command(params):
             INFO     : We will see if we have access to all data in this thread.
         """
         # ultra son data.
-        os.system('cls' if os.name == 'nt' else 'clear')
+        # os.system('cls' if os.name == 'nt' else 'clear')
         # print("Data Ultra song : ", data_ultrasensor)
         np.set_printoptions(suppress = True)
         print("Data position   : ", data_position)
