@@ -1,6 +1,7 @@
 from typing import NamedTuple
 from serial import Serial
 
+import math as m
 import pyzed.sl as sl
 import numpy as np
 import socket
@@ -121,3 +122,23 @@ def check_if_new_keypoint(keypoints, current_position, threshold, debug):
         return keypoints
 
     return keypoints
+
+def calcul_vector(current_position, keypoint):
+    """
+        DESCRIPTION:
+        OUTPUT:
+            * current_position = (x, y) index of current robot position.
+            * testouille       = (x, y)
+        INPUT:
+            * angle_degree     = (float) of vector from path
+            * norm_vector      = (float) of norm from vector
+    """
+
+    x_sum = keypoint[0]-current_position[0]
+    y_sum = keypoint[1]-current_position[1]
+    
+    angle_degree = np.arccos((x_sum)/(x_sum**2+y_sum**2)**0.5)
+    if y_sum < 0:
+        angle_degree = (m.pi - angle_degree) + m.pi
+
+    return angle_degree * (180/m.pi)

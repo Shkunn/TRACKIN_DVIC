@@ -225,7 +225,7 @@ def thread_slam(params):
                     data to other thread. It will also send camera flux to server.
     """
     zed, image, pose, ser, sock, runtime, objects, obj_runtime_param = params
-    global data_position, data_detection, keypoint_to_home
+    global data_position, data_detection, keypoint_to_home, global_state
 
     while True:
         # GET IMAGE.
@@ -240,7 +240,8 @@ def thread_slam(params):
         data_position[2] = oy  
 
         # CHECHING KEYPOINTS.
-        keypoint_to_home = check_if_new_keypoint(keypoint_to_home, data_position[None, :], threshold=0.2, debug=True)                                                         
+        if global_state != Robot_state.HOME:
+            keypoint_to_home = check_if_new_keypoint(keypoint_to_home, data_position[None, :], threshold=0.2, debug=True)                                                         
         
         # CHECKING OBJECT DETECTION.
         zed.retrieve_objects(objects, obj_runtime_param)                                # get 3D objects detection.   
@@ -282,7 +283,7 @@ def thread_compute_command(params):
                     and take decision to send to micro controler.
     """
     zed, image, pose, ser, sock, runtime, objects, obj_runtime_param = params
-    global data_ultrasensor, data_position, data_detection, global_state, user_command, last_command_micro
+    global data_ultrasensor, data_position, data_detection, global_state, user_command, last_command_micro, keypoint_to_home
 
     """
         INFO         : This is all local variable required for this thread.
@@ -394,7 +395,8 @@ def thread_compute_command(params):
     
         if(global_state == Robot_state.HOME):
             # in this mode, the robot need to comeback to home.
-            pass
+            next_keypoint      = keypoint_to_home[-1]
+            print("VECTOR", calcul_vector((data_position[0], data_position[1]), (next_keypoint[0], next_keypoint[1])))
 
         if(global_state == Robot_state.WAITING):
             # we send stop command to engine, or we do something fun idk.
