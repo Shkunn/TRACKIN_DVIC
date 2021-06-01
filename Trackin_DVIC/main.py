@@ -246,7 +246,7 @@ def thread_slam(params):
         translation       = pose.pose_data().m[:3,3]
         rotation          = pose.get_rotation_vector()  
         if rotation[2] < 0:
-            rotation[2] += m.pi 
+            rotation[2] += 2*m.pi 
     
         data_position[:2] = translation[:2]
         data_position[-1] = rotation[-1]  
