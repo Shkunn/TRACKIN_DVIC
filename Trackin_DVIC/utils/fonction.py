@@ -114,7 +114,8 @@ def check_if_new_keypoint(keypoints, current_position, threshold, debug):
     distance = compute_distance_between_points(current_position, keypoints[-1])
 
     if debug:
-        print("KEYPOINTS LIST:", keypoints)
+        pass
+        # print("KEYPOINTS LIST:", keypoints)
 
     if distance > threshold:
         keypoints = np.concatenate((keypoints, current_position), axis=0)

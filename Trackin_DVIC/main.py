@@ -26,6 +26,7 @@ lock               = threading.Lock()
 last_command_micro = np.zeros(4)                                                        # format(moteur1FR/moteur2BR/moteur3FL/moteur4BL)
 keypoint_to_home   = np.zeros((1,3))                                                    # format(format(axes y position, distance, nombre object))
 is_debug_option    = False
+fd                 = 0.5
 
 """
 Define the IP address and the Port Number
@@ -143,27 +144,27 @@ def manual_mode(user_command, last_command_micro, ser):
     command_micro  = np.zeros(4)
 
     if(user_command == Control_user.STOP):
-        command_micro = np.array([   0,   0,   0,   0])
+        command_micro = np.array([  0*fd,  0*fd,  0*fd,  0*fd])
     if(user_command == Control_user.FORWARD):
-        command_micro = np.array([ 200, 200, 200, 200])
+        command_micro = np.array([200*fd,200*fd,200*fd,200*fd])
     if(user_command == Control_user.BACKWARD):
-        command_micro = np.array([ 800, 800, 800, 800])
+        command_micro = np.array([800*fd,800*fd,800*fd,800*fd])
     if(user_command == Control_user.LEFT):
-        command_micro = np.array([ 600, 600, 600, 600])
+        command_micro = np.array([   600,   600,   600,   600])
     if(user_command == Control_user.RIGHT):
-        command_micro = np.array([ 500, 500, 500, 500])
+        command_micro = np.array([   500,   500,   500,   500])
     if(user_command == Control_user.TURN_LEFT):
-        command_micro = np.array([ 200, 200, 800, 800])
+        command_micro = np.array([200*fd,200*fd,800*fd,800*fd])
     if(user_command == Control_user.TURN_RIGHT):
-        command_micro = np.array([ 800, 800, 200, 200])
+        command_micro = np.array([800*fd,800*fd,200*fd,200*fd])
     if(user_command == Control_user.DIAG_FOR_LEFT):
-        command_micro = np.array([ 200,   0,   0, 200])
+        command_micro = np.array([200*fd,  0*fd,  0*fd,200*fd])
     if(user_command == Control_user.DIAG_FOR_RIGHT):
-        command_micro = np.array([   0, 200, 200,   0])
+        command_micro = np.array([  0*fd,200*fd,200*fd,  0*fd])
     if(user_command == Control_user.DIAG_BACK_LEFT):
-        command_micro = np.array([   0, 800, 800,   0])
+        command_micro = np.array([  0*fd,800*fd,800*fd,  0*fd])
     if(user_command == Control_user.DIAG_BACK_RIGHT):
-        command_micro = np.array([ 800,   0,   0, 800])
+        command_micro = np.array([800*fd,  0*fd,  0*fd,800*fd])
 
     return send_command_v2(last_command_micro, command_micro, ser)
 
@@ -314,21 +315,23 @@ def thread_compute_command(params):
     param_threshold_pixel_angle = 30
     threshold_angle             = 12                                                   # threshold to have to go to keypoint.
     threshold_reach_keypoint    = 0.2                                                  # threshold to say we reach keypoint.
-
+    last_time                   = time.time()
     while True:
         """
             INFO     : We will see if we have access to all data in this thread.
         """
+        print(f"HZ thread command : {1/(time.time()-last_time)}")
+        last_time = time.time()
         # ultra son data.
         # os.system('cls' if os.name == 'nt' else 'clear')
         # print("Data Ultra song : ", data_ultrasensor)
         np.set_printoptions(suppress = True)
         print("Data position   : ", data_position)
         # print("Data detection  : ", data_detection)
-        # print("Robot_state     : ", global_state)
+        print("Robot_state     : ", global_state)
         # print("User command    : ", user_command)
         # print("\n")
-        time.sleep(0.1)
+        time.sleep(0.01)
 
         # main algo begin at this moment.
         if(global_state == Robot_state.MANUALMODE):
@@ -345,19 +348,19 @@ def thread_compute_command(params):
                 if data_detection[0] > param_threshold_pixel_angle:
                     # need to turn right.
                     new_command = True
-                    command_micro = np.array([ 800, 800, 200, 200])
+                    command_micro = np.array([800*fd,800*fd,200*fd,200*fd])
                     last_command_micro = send_command_v2(last_command_micro, command_micro, ser)
 
                 if data_detection[0] > param_threshold_pixel_angle and not new_command:
                     # need to turn left.
                     new_command = True
-                    command_micro = np.array([ 200, 200, 800, 800])
+                    command_micro = np.array([200*fd,200*fd,800*fd,800*fd])
                     last_command_micro = send_command_v2(last_command_micro, command_micro, ser)
 
                 if data_detection[1] < (param_threshold_distance-param_plage_distance) and not new_command:
                     # need to forward.
                     new_command = True
-                    command_micro = np.array([ 200, 200, 200, 200])
+                    command_micro = np.array([200*fd,200*fd,200*fd,200*fd])
 
                     # check if forward is available
                     if(data_detection[0] > 300 or data_detection[0] == 0):
@@ -386,11 +389,11 @@ def thread_compute_command(params):
                 if (data_detection[1] > (param_threshold_distance+param_plage_distance)) and not new_command:
                     # need to backward.
                     new_command = True
-                    command_micro = np.array([ 800, 800, 800, 800])
+                    command_micro = np.array([800*fd,800*fd,800*fd,800*fd])
                     last_command_micro = send_command_v2(last_command_micro, command_micro, ser)
 
                 if not new_command:
-                    command_micro = np.array([   0,   0,   0,   0])
+                    command_micro = np.array([ 0*fd, 0*fd, 0*fd, 0*fd])
                     last_command_micro = send_command_v2(last_command_micro, command_micro, ser)
                 
                 
@@ -405,7 +408,7 @@ def thread_compute_command(params):
                     # we are in Robot_state.LOST since 2.0 secondes.
                     # so we will turn in one turn.
                     # Turn left.
-                    command_micro      = np.array([ 200, 200, 800, 800])
+                    command_micro      = np.array([200*fd,200*fd,800*fd,800*fd])
                     last_command_micro = send_command_v2(last_command_micro, command_micro, ser)
                     turn_time          = time.time()
                     while((time.time() - turn_time) > 4):
@@ -416,11 +419,15 @@ def thread_compute_command(params):
                         lost_time = time.time()
     
         if(global_state == Robot_state.HOME):
+
+            if is_debug_option:
+                print(keypoint_to_home)
+
             # Check if we are to home.
-            if keypoint_to_home.shape[0] == 0:
+            if keypoint_to_home.shape[0] <= 1:
                 # change state.
                 global_state = Robot_state.WAITING
-                command_micro = np.array([   0,   0,   0,   0])
+                command_micro = np.array([ 0*fd, 0*fd, 0*fd, 0*fd])
                 last_command_micro = send_command_v2(last_command_micro, command_micro, ser)
             else:
                 # in this mode, the robot need to comeback to home.
@@ -433,21 +440,21 @@ def thread_compute_command(params):
                     distance_deg = 360 - ((current_angle - angle_direction) % 360)
                     if distance_deg > threshold_angle:
                         # turn left.
-                        command_micro = np.array([ 200, 200, 800, 800])
+                        command_micro = np.array([200*fd,200*fd,800*fd,800*fd])
                         last_command_micro = send_command_v2(last_command_micro, command_micro, ser)
                     else:
                         # GO forward.
-                        command_micro = np.array([ 200, 200, 200, 200])
+                        command_micro = np.array([200*fd,200*fd,200*fd,200*fd])
                         last_command_micro = send_command_v2(last_command_micro, command_micro, ser)
                 else:
                     distance_deg = (current_angle - angle_direction) % 360
                     if distance_deg > threshold_angle:
                         # turn right.
-                        command_micro = np.array([ 800, 800, 200, 200])
+                        command_micro = np.array([800*fd,800*fd,200*fd,200*fd])
                         last_command_micro = send_command_v2(last_command_micro, command_micro, ser)
                     else:
                         # GO forward.
-                        command_micro = np.array([ 200, 200, 200, 200])
+                        command_micro = np.array([200*fd,200*fd,200*fd,200*fd])
                         last_command_micro = send_command_v2(last_command_micro, command_micro, ser)
 
                 if(is_debug_option):
@@ -469,7 +476,7 @@ def thread_compute_command(params):
         
         if(global_state == Robot_state.RESET):
             # SPECIAL RESET MODE FOR DEBUG.
-            command_micro = np.array([   0,   0,   0,   0])
+            command_micro = np.array([ 0*fd, 0*fd, 0*fd, 0*fd])
             last_command_micro = send_command_v2(last_command_micro, command_micro, ser)
             keypoint_to_home = np.zeros((1,3))
 
