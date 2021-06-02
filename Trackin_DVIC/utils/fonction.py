@@ -67,8 +67,8 @@ def get_id_nearest_humain(objects):
     index_list   = 0
     i            = 0
     for obj in objects.object_list:
-        if obj.position[2] > min_distance:
-            min_distance = obj.position[2]
+        if obj.position[0] > min_distance:
+            min_distance = obj.position[0]
             index_list = i 
         i += 1
 
