@@ -329,6 +329,7 @@ def thread_compute_command(params):
         """
         print(f"HZ thread command : {1/(time.time()-last_time)}")
         last_time = time.time()
+        lost_time = None
         # ultra son data.
         # os.system('cls' if os.name == 'nt' else 'clear')
         # print("Data Ultra song : ", data_ultrasensor)
@@ -409,6 +410,8 @@ def thread_compute_command(params):
                 if(global_state == Robot_state.FOLLOWING):
                     lost_time = time.time()
                     global_state = Robot_state.LOST
+                    command_micro = np.array([ 0,   0*fd, 0,   0*fd, 0,   0*fd, 0,   0*fd])
+                    last_command_micro = send_command_v2(last_command_micro, command_micro, ser)
 
                 if(global_state == Robot_state.LOST and (time.time() - lost_time) > 10):
                     # we are in Robot_state.LOST since 2.0 secondes.
