@@ -283,7 +283,7 @@ def thread_slam(params):
             image_draw    = cv2.line(image_draw, point_C, point_D, color, 5)  
             image_draw    = cv2.line(image_draw, point_D, point_A, color, 5) 
 
-            data_detection[0] = ((int(humain[0][0]) + int(humain[1][0]))/2) - image_draw.shape[1]
+            data_detection[0] = ((int(humain[0][0]) + int(humain[1][0]))/2) - (image_draw.shape[1]/2)
             data_detection[1] = objects.object_list[i].position[0] 
             data_detection[2] = len(objects.object_list)
         else:
