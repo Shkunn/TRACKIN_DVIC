@@ -331,7 +331,7 @@ def thread_compute_command(params):
         print(f"HZ thread command : {1/(time.time()-last_time)}")
         last_time = time.time()
         # ultra son data.
-        # os.system('cls' if os.name == 'nt' else 'clear')
+        os.system('cls' if os.name == 'nt' else 'clear')
         np.set_printoptions(suppress = True)
         print("Data Ultra song : ", data_ultrasensor)
         print("Data position   : ", data_position)
