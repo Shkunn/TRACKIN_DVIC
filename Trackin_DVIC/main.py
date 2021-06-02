@@ -317,7 +317,7 @@ def thread_compute_command(params):
         INFO         : This is all local variable required for this thread.
     """
     lost_time                   = None
-    param_threshold_distance    = -1                                                   # distance between robot and human in meters.
+    param_threshold_distance    = 1                                                    # distance between robot and human in meters.
     param_plage_distance        = 0.1                                                  # threshold_distance +- plage_distance
     param_threshold_pixel_angle = 30
     threshold_angle             = 25                                                   # threshold to have to go to keypoint.
@@ -358,13 +358,13 @@ def thread_compute_command(params):
                     command_micro = np.array([ 1, 250*fd, 1, 250*fd, 0, 250*fd, 0, 250*fd])
                     last_command_micro = send_command_v2(last_command_micro, command_micro, ser)
 
-                if data_detection[0] > param_threshold_pixel_angle and not new_command:
+                if data_detection[0] < -param_threshold_pixel_angle and not new_command:
                     # need to turn left.
                     new_command = True
                     command_micro = np.array([ 0, 250*fd, 0, 250*fd, 1, 250*fd, 1, 250*fd])
                     last_command_micro = send_command_v2(last_command_micro, command_micro, ser)
 
-                if data_detection[1] < (param_threshold_distance-param_plage_distance) and not new_command:
+                if data_detection[1] > (param_threshold_distance+param_plage_distance) and not new_command:
                     # need to forward.
                     new_command = True
                     command_micro = np.array([ 0, 250*fd, 0, 250*fd, 0, 250*fd, 0, 250*fd])
@@ -379,21 +379,22 @@ def thread_compute_command(params):
                             command_micro = np.array([ 0,    600, 0,    600, 0,    600, 0,    600])
                             last_command_micro = send_command_v2(last_command_micro, command_micro, ser)
 
-                        if(data_detection[1] > data_detection[2]):
+                        if(data_detection[1] > data_detection[2] and data_detection[2] != 0):
                             # go left
                             command_micro = np.array([ 0,    600, 0,    600, 0,    600, 0,    600])
                             last_command_micro = send_command_v2(last_command_micro, command_micro, ser)
 
-                        if(data_detection[1] < data_detection[2]):
+                        if(data_detection[1] < data_detection[2] and data_detection[1] != 0):
                             # go right
                             command_micro = np.array([ 0,    700, 0,    700, 0,    700, 0,    700])
                             last_command_micro = send_command_v2(last_command_micro, command_micro, ser)
 
-                        if((data_detection[1] < 300) and (data_detection[2]) < 300):
+                        if((data_detection[1] < 300) and (data_detection[2] < 300) \
+                            and (data_detection[1] != 0) and (data_detection[2] != 0)):
                             # block so stop
                             new_command = False
 
-                if (data_detection[1] > (param_threshold_distance+param_plage_distance)) and not new_command:
+                if data_detection[1] < (param_threshold_distance-param_plage_distance) and not new_command:
                     # need to backward.
                     new_command = True
                     command_micro = np.array([ 1, 250*fd, 1, 250*fd, 1, 250*fd, 1, 250*fd])
@@ -403,19 +404,17 @@ def thread_compute_command(params):
                     command_micro = np.array([ 0,   0*fd, 0,   0*fd, 0,   0*fd, 0,   0*fd])
                     last_command_micro = send_command_v2(last_command_micro, command_micro, ser)
                 
-                
-
             else:
                 # we don't detect human.
                 if(global_state == Robot_state.FOLLOWING):
                     lost_time = time.time()
                     global_state = Robot_state.LOST
 
-                if(global_state == Robot_state.LOST and (time.time() - lost_time) > 2):
+                if(global_state == Robot_state.LOST and (time.time() - lost_time) > 10):
                     # we are in Robot_state.LOST since 2.0 secondes.
                     # so we will turn in one turn.
                     # Turn left.
-                    command_micro = np.array([ 0, 250*fd, 0, 250*fd, 1, 250*fd, 1, 250*fd])
+                    command_micro      = np.array([ 0, 250*fd, 0, 250*fd, 1, 250*fd, 1, 250*fd])
                     last_command_micro = send_command_v2(last_command_micro, command_micro, ser)
                     turn_time          = time.time()
                     while((time.time() - turn_time) > 4):
