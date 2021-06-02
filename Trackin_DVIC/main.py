@@ -269,30 +269,30 @@ def thread_slam(params):
             keypoint_to_home = check_if_new_keypoint(keypoint_to_home, data_position[None, :], threshold=0.5, debug=True)                                                         
         
         # CHECKING OBJECT DETECTION.
-        zed.retrieve_objects(objects, obj_runtime_param)                                # get 3D objects detection.   
-        validation, i    = get_id_nearest_humain(objects)                               # sort all object.
+        # zed.retrieve_objects(objects, obj_runtime_param)                                # get 3D objects detection.   
+        # validation, i    = get_id_nearest_humain(objects)                               # sort all object.
 
-        # DRAW.
-        image_draw = image.get_data()
-        if validation:
+        # # DRAW.
+        # image_draw = image.get_data()
+        # if validation:
 
-            humain        = objects.object_list[i].bounding_box_2d
-            # print("POINT_A", humain[0][0], humain[0][1])
-            point_A       = (int(humain[0][0]), int(humain[0][1]))
-            point_B       = (int(humain[1][0]), int(humain[1][1]))
-            point_C       = (int(humain[2][0]), int(humain[2][1]))
-            point_D       = (int(humain[3][0]), int(humain[3][1]))
-            color         = (0, 255, 0)
-            image_draw    = cv2.line(image_draw, point_A, point_B, color, 5)
-            image_draw    = cv2.line(image_draw, point_B, point_C, color, 5)  
-            image_draw    = cv2.line(image_draw, point_C, point_D, color, 5)  
-            image_draw    = cv2.line(image_draw, point_D, point_A, color, 5) 
+        #     humain        = objects.object_list[i].bounding_box_2d
+        #     # print("POINT_A", humain[0][0], humain[0][1])
+        #     point_A       = (int(humain[0][0]), int(humain[0][1]))
+        #     point_B       = (int(humain[1][0]), int(humain[1][1]))
+        #     point_C       = (int(humain[2][0]), int(humain[2][1]))
+        #     point_D       = (int(humain[3][0]), int(humain[3][1]))
+        #     color         = (0, 255, 0)
+        #     image_draw    = cv2.line(image_draw, point_A, point_B, color, 5)
+        #     image_draw    = cv2.line(image_draw, point_B, point_C, color, 5)  
+        #     image_draw    = cv2.line(image_draw, point_C, point_D, color, 5)  
+        #     image_draw    = cv2.line(image_draw, point_D, point_A, color, 5) 
 
-            data_detection[0] = int((humain[0][0]+humain[1][0])/2) - (int(image_draw.shape[1]/2))
-            data_detection[1] = objects.object_list[i].position[0] 
-            data_detection[2] = len(objects.object_list)
-        else:
-            data_detection    = np.zeros(3)  
+        #     data_detection[0] = int((humain[0][0]+humain[1][0])/2) - (int(image_draw.shape[1]/2))
+        #     data_detection[1] = objects.object_list[i].position[0] 
+        #     data_detection[2] = len(objects.object_list)
+        # else:
+        #     data_detection    = np.zeros(3)  
 
         # RESET MODE.
         if(global_state == Robot_state.RESET):
