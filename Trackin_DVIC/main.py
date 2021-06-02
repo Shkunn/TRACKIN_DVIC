@@ -337,6 +337,7 @@ def thread_compute_command(params):
         print("Data position   : ", data_position)
         print("Data detection  : ", data_detection)
         print("Robot_state     : ", global_state)
+        print("Last_command_mi : ", last_command_micro)
         # print("User command    : ", user_command)
         # print("\n")
         time.sleep(0.01)
@@ -524,10 +525,10 @@ if __name__ == '__main__':
     thread_3.start()
 
     # Thread listen sensor.
-    thread_4 = threading.Thread(target=thread_listen_sensor, args=(params.ser,))
-    thread_4.start()
+    # thread_4 = threading.Thread(target=thread_listen_sensor, args=(params.ser,))
+    # thread_4.start()
 
     thread_1.join()
     thread_2.join()
     thread_3.join()
-    thread_4.join()
+    # thread_4.join()
