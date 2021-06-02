@@ -272,7 +272,7 @@ def thread_slam(params):
         if validation:
 
             humain        = objects.object_list[i].bounding_box_2d
-            print("POINT_A", humain[0][0], humain[0][1])
+            # print("POINT_A", humain[0][0], humain[0][1])
             point_A       = (int(humain[0][0]), int(humain[0][1]))
             point_B       = (int(humain[1][0]), int(humain[1][1]))
             point_C       = (int(humain[2][0]), int(humain[2][1]))
@@ -318,7 +318,7 @@ def thread_compute_command(params):
     """
     lost_time                   = None
     param_threshold_distance    = 1                                                    # distance between robot and human in meters.
-    param_plage_distance        = 0.1                                                  # threshold_distance +- plage_distance
+    param_plage_distance        = 0.3                                                  # threshold_distance +- plage_distance
     param_threshold_pixel_angle = 150
     threshold_angle             = 25                                                   # threshold to have to go to keypoint.
     threshold_reach_keypoint    = 0.2                                                  # threshold to say we reach keypoint.
