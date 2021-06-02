@@ -12,7 +12,7 @@ while True:
     data = ser.readline()
 
     encodor_data  = (data.decode('utf-8')).split(sep='/')
-
+    
     if len(encodor_data) == 5:
         data_ultrasensor[0] = float(encodor_data[0])
         data_ultrasensor[1] = float(encodor_data[1])

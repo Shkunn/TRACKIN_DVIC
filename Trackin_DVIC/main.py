@@ -74,7 +74,6 @@ def initialize():
         exit(-1)
 
     print(f"[INIT] - open camera zed 2.")
-
     # ZED OBJECT CONFIGURATION.
     image = sl.Mat()                                                                # Left image from camera.
     pose = sl.Pose()  
@@ -246,7 +245,7 @@ def thread_slam(params):
     zed, image, pose, ser, sock, runtime, objects, obj_runtime_param = params
     global data_position, data_detection, keypoint_to_home, global_state
 
-    while True:11/11
+    while True:
         # GET IMAGE.
         zed.grab(runtime)
         zed.retrieve_image(image, sl.VIEW.LEFT)                             
@@ -262,7 +261,7 @@ def thread_slam(params):
 
         # CHECHING KEYPOINTS.
         if global_state != Robot_state.HOME and global_state != Robot_state.RESET:
-            keypoint_to_home = check_if_new_keypoint(keypoint_to_home, data_position[None, :], threshold=0.2, debug=True)                                                         
+            keypoint_to_home = check_if_new_keypoint(keypoint_to_home, data_position[None, :], threshold=0.5, debug=True)                                                         
         
         # CHECKING OBJECT DETECTION.
         zed.retrieve_objects(objects, obj_runtime_param)                                # get 3D objects detection.   
@@ -321,7 +320,7 @@ def thread_compute_command(params):
     param_threshold_distance    = -1                                                   # distance between robot and human in meters.
     param_plage_distance        = 0.1                                                  # threshold_distance +- plage_distance
     param_threshold_pixel_angle = 30
-    threshold_angle             = 12                                                   # threshold to have to go to keypoint.
+    threshold_angle             = 25                                                   # threshold to have to go to keypoint.
     threshold_reach_keypoint    = 0.2                                                  # threshold to say we reach keypoint.
     last_time                   = time.time()
     while True:
@@ -335,7 +334,7 @@ def thread_compute_command(params):
         # print("Data Ultra song : ", data_ultrasensor)
         np.set_printoptions(suppress = True)
         print("Data position   : ", data_position)
-        # print("Data detection  : ", data_detection)
+        print("Data detection  : ", data_detection)
         print("Robot_state     : ", global_state)
         # print("User command    : ", user_command)
         # print("\n")
