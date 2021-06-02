@@ -248,7 +248,7 @@ def thread_slam(params):
     last_time = time.time()
 
     while True:
-        print("SLAM THREAD HZ : ", time.time() - last_time)
+        print("SLAM THREAD HZ : ", 1/(time.time() - last_time))
         last_time = time.time()
 
         # GET IMAGE.
