@@ -245,7 +245,12 @@ def thread_slam(params):
     zed, image, pose, ser, sock, runtime, objects, obj_runtime_param = params
     global data_position, data_detection, keypoint_to_home, global_state
 
+    last_time = time.time()
+
     while True:
+        print("SLAM THREAD HZ : ", time.time() - last_time)
+        last_time = time.time()
+
         # GET IMAGE.
         zed.grab(runtime)
         zed.retrieve_image(image, sl.VIEW.LEFT)                             
@@ -513,22 +518,22 @@ if __name__ == '__main__':
     lock = threading.Lock()
 
     # Thread listen server.
-    thread_1 = threading.Thread(target=thread_listen_server, args=(lock, params.socket,))
-    thread_1.start()
+    # thread_1 = threading.Thread(target=thread_listen_server, args=(lock, params.socket,))
+    # thread_1.start()
 
     # Thread slam.
     thread_2 = threading.Thread(target=thread_slam, args=(params,))
     thread_2.start()
 
     # Thread compute command.
-    thread_3 = threading.Thread(target=thread_compute_command, args=(params,))
-    thread_3.start()
+    # thread_3 = threading.Thread(target=thread_compute_command, args=(params,))
+    # thread_3.start()
 
     # Thread listen sensor.
     # thread_4 = threading.Thread(target=thread_listen_sensor, args=(params.ser,))
     # thread_4.start()
 
-    thread_1.join()
+    # thread_1.join()
     thread_2.join()
-    thread_3.join()
+    # thread_3.join()
     # thread_4.join()
