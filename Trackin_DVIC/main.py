@@ -222,7 +222,7 @@ def thread_listen_server(lock, socket):
                 if message_server == Robot_state.FOLLOWING:
                     global_state = Robot_state.FOLLOWING
 
-                if message_server == Robot_state.HOME:command_micro = np.array([500*fd,500*fd,500*fd,500*fd])
+                if message_server == Robot_state.HOME:
                     global_state = Robot_state.HOME
                     
                 if message_server == Robot_state.MANUALMODE:
@@ -246,7 +246,7 @@ def thread_slam(params):
     zed, image, pose, ser, sock, runtime, objects, obj_runtime_param = params
     global data_position, data_detection, keypoint_to_home, global_state
 
-    while True:
+    while True:11/11
         # GET IMAGE.
         zed.grab(runtime)
         zed.retrieve_image(image, sl.VIEW.LEFT)                             
