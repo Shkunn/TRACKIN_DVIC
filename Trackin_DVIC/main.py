@@ -283,7 +283,7 @@ def thread_slam(params):
             image_draw    = cv2.line(image_draw, point_C, point_D, color, 5)  
             image_draw    = cv2.line(image_draw, point_D, point_A, color, 5) 
 
-            data_detection[0] = ((int(humain[0][0]) + int(humain[1][0]))/2) - (image_draw.shape[1]/2)
+            data_detection[0] = int((humain[0][0]+humain[1][0])/2) - (int(image_draw.shape[1]/2))
             data_detection[1] = objects.object_list[i].position[0] 
             data_detection[2] = len(objects.object_list)
         else:
@@ -319,7 +319,7 @@ def thread_compute_command(params):
     lost_time                   = None
     param_threshold_distance    = 1                                                    # distance between robot and human in meters.
     param_plage_distance        = 0.1                                                  # threshold_distance +- plage_distance
-    param_threshold_pixel_angle = 100
+    param_threshold_pixel_angle = 150
     threshold_angle             = 25                                                   # threshold to have to go to keypoint.
     threshold_reach_keypoint    = 0.2                                                  # threshold to say we reach keypoint.
     last_time                   = time.time()
