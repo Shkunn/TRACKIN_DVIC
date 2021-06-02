@@ -323,13 +323,13 @@ def thread_compute_command(params):
     threshold_angle             = 25                                                   # threshold to have to go to keypoint.
     threshold_reach_keypoint    = 0.2                                                  # threshold to say we reach keypoint.
     last_time                   = time.time()
+    
     while True:
         """
             INFO     : We will see if we have access to all data in this thread.
         """
         print(f"HZ thread command : {1/(time.time()-last_time)}")
         last_time = time.time()
-        lost_time = None
         # ultra son data.
         # os.system('cls' if os.name == 'nt' else 'clear')
         # print("Data Ultra song : ", data_ultrasensor)
