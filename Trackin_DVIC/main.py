@@ -405,27 +405,27 @@ def thread_compute_command(params):
                     command_micro = np.array([ 0,   0*fd, 0,   0*fd, 0,   0*fd, 0,   0*fd])
                     last_command_micro = send_command_v2(last_command_micro, command_micro, ser)
                 
-            else:
-                # we don't detect human.
-                if(global_state == Robot_state.FOLLOWING):
-                    lost_time = time.time()
-                    global_state = Robot_state.LOST
-                    command_micro = np.array([ 0,   0*fd, 0,   0*fd, 0,   0*fd, 0,   0*fd])
-                    last_command_micro = send_command_v2(last_command_micro, command_micro, ser)
+            # else:
+            #     # we don't detect human.
+            #     if(global_state == Robot_state.FOLLOWING):
+            #         lost_time = time.time()
+            #         global_state = Robot_state.LOST
+            #         command_micro = np.array([ 0,   0*fd, 0,   0*fd, 0,   0*fd, 0,   0*fd])
+            #         last_command_micro = send_command_v2(last_command_micro, command_micro, ser)
 
-                if(global_state == Robot_state.LOST and (time.time() - lost_time) > 10):
-                    # we are in Robot_state.LOST since 2.0 secondes.
-                    # so we will turn in one turn.
-                    # Turn left.
-                    command_micro      = np.array([ 0, 250*fd, 0, 250*fd, 1, 250*fd, 1, 250*fd])
-                    last_command_micro = send_command_v2(last_command_micro, command_micro, ser)
-                    turn_time          = time.time()
-                    while((time.time() - turn_time) > 4):
-                        if data_detection[2] > 0:
-                            # we detect human during turn left.
-                            break
-                        # if no found, this line allow robot to stop for 2 secondes before turning.
-                        lost_time = time.time()
+            #     if(global_state == Robot_state.LOST and (time.time() - lost_time) > 10):
+            #         # we are in Robot_state.LOST since 2.0 secondes.
+            #         # so we will turn in one turn.
+            #         # Turn left.
+            #         command_micro      = np.array([ 0, 250*fd, 0, 250*fd, 1, 250*fd, 1, 250*fd])
+            #         last_command_micro = send_command_v2(last_command_micro, command_micro, ser)
+            #         turn_time          = time.time()
+            #         while((time.time() - turn_time) > 4):
+            #             if data_detection[2] > 0:
+            #                 # we detect human during turn left.
+            #                 break
+            #             # if no found, this line allow robot to stop for 2 secondes before turning.
+            #             lost_time = time.time()
     
         if(global_state == Robot_state.HOME):
 
