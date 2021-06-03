@@ -375,6 +375,7 @@ def thread_compute_command(params):
                     # need to forward.
                     new_command = True
                     command_micro = np.array([ 0, 250*fd, 0, 250*fd, 0, 250*fd, 0, 250*fd])
+                    last_command_micro = send_command_v2(last_command_micro, command_micro, ser)
 
                     # # check if forward is available
                     # if(data_ultrasensor[0] > 300 or data_ultrasensor[0] == 0):
@@ -518,22 +519,22 @@ if __name__ == '__main__':
     lock = threading.Lock()
 
     # Thread listen server.
-    # thread_1 = threading.Thread(target=thread_listen_server, args=(lock, params.socket,))
-    # thread_1.start()
+    thread_1 = threading.Thread(target=thread_listen_server, args=(lock, params.socket,))
+    thread_1.start()
 
     # Thread slam.
     thread_2 = threading.Thread(target=thread_slam, args=(params,))
     thread_2.start()
 
     # Thread compute command.
-    # thread_3 = threading.Thread(target=thread_compute_command, args=(params,))
-    # thread_3.start()
+    thread_3 = threading.Thread(target=thread_compute_command, args=(params,))
+    thread_3.start()
 
     # Thread listen sensor.
-    # thread_4 = threading.Thread(target=thread_listen_sensor, args=(params.ser,))
-    # thread_4.start()
+    thread_4 = threading.Thread(target=thread_listen_sensor, args=(params.ser,))
+    thread_4.start()
 
-    # thread_1.join()
+    thread_1.join()
     thread_2.join()
-    # thread_3.join()
-    # thread_4.join()
+    thread_3.join()
+    thread_4.join()
