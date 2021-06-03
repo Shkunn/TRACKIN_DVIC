@@ -51,28 +51,28 @@ def get_ip_address(ifname):
 
 def get_id_nearest_humain(objects):
     '''
-        DESCRIPTION: This function will take all object detect
-                and send back the index of the nearest humain.
-        INPUT      :
-        *objects   > list of objects from zed sdl. 
-        OUTPUT     :
-        *valid     > if list is bigger than 0.
-        *index_list> position of nearest humain in objects list.
+    DESCRIPTION: This function will take all object detect
+            and send back the index of the nearest humain.
+    INPUT      :
+    *objects   > list of objects from zed sdl. 
+    OUTPUT     :
+    *valid     > if list is bigger than 0.
+    *index_list> position of nearest humain in objects list.
     '''
-    
+
     if len(objects.object_list) == 0:
         return False, None
     
-    min_distance = -5
+    min_distance = 5
     index_list   = 0
     i            = 0
     for obj in objects.object_list:
-        if obj.position[0] > min_distance:
+        if obj.position[0] < min_distance:
             min_distance = obj.position[0]
             index_list = i 
         i += 1
 
-    return True, index_list     
+    return True, index_list    
 
 def check_ultrason_init(ser):
     '''
