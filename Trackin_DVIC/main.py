@@ -96,7 +96,7 @@ def initialize():
         exit(-1)
 
     obj_runtime_param                                = sl.ObjectDetectionRuntimeParameters()
-    obj_runtime_param.detection_confidence_threshold = 75
+    obj_runtime_param.detection_confidence_threshold = 40                               # 75
 
     if(args.model == "2" or args.model == "3"):
         obj_runtime_param.object_class_filter = [sl.OBJECT_CLASS.PERSON]                # Only detect Persons
