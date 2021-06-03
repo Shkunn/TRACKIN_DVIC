@@ -48,6 +48,7 @@ def initialize():
     parser.add_argument("id_name")                                                  # name to get ip adress.
     parser.add_argument("debug")
     parser.add_argument("fd")
+    parser.add_argument("model")                                                    # you can choose your model.
     args = parser.parse_args()
 
     # DEBUG OPTION.
@@ -81,16 +82,25 @@ def initialize():
 
     # ZED OBJECT DETECTION CONFIGURATION.
     obj_param                     = sl.ObjectDetectionParameters()
-    obj_param.enable_tracking     = True                                                # tracking object.
-    obj_param.detection_model     = sl.DETECTION_MODEL.HUMAN_BODY_FAST
-    obj_param.enable_body_fitting = True
+    obj_param.enable_tracking     = True                                              # tracking object.
+
+    if(args.model == "1"):
+        obj_param.detection_model     = sl.DETECTION_MODEL.HUMAN_BODY_FAST
+        obj_param.enable_body_fitting = True
+
+    if(args.model == "2"):
+        obj_param.detection_model     = sl.DETECTION_MODEL.MULTI_CLASS_BOX_MEDIUM
+
     if(zed.enable_object_detection(obj_param) != sl.ERROR_CODE.SUCCESS):             
         print("[ERR0] Can't enable object detection on camera zed 2.")
         exit(-1)
 
     obj_runtime_param                                = sl.ObjectDetectionRuntimeParameters()
     obj_runtime_param.detection_confidence_threshold = 75
-    # obj_runtime_param.object_class_filter = [sl.OBJECT_CLASS.PERSON]                # Only detect Persons
+
+    if(args.model == "2"):
+        obj_runtime_param.object_class_filter = [sl.OBJECT_CLASS.PERSON]                # Only detect Persons
+        
     objects = sl.Objects()
     print(f"[INIT] - all process on zed 2 are running.")
     
