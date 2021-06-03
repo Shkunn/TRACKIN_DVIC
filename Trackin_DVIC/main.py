@@ -98,7 +98,7 @@ def initialize():
     obj_runtime_param                                = sl.ObjectDetectionRuntimeParameters()
     obj_runtime_param.detection_confidence_threshold = 75
 
-    if(args.model == "2"):
+    if(args.model == "2" or args.model == "3"):
         obj_runtime_param.object_class_filter = [sl.OBJECT_CLASS.PERSON]                # Only detect Persons
         
     objects = sl.Objects()
@@ -146,7 +146,7 @@ def send_command_v2(current_command, new_command, ser):
         message_string += str(new_command[6]) + "/"
         message_string += str(new_command[7]) 
         ser.write(message_string.encode())
-        print("MESSAGE : ", message_string)
+        #print("MESSAGE : ", message_string)
         last_command    = new_command
 
     return last_command
@@ -334,7 +334,7 @@ def thread_compute_command(params):
         INFO         : This is all local variable required for this thread.
     """
     lost_time                   = None
-    param_threshold_distance    = 1                                                    # distance between robot and human in meters.
+    param_threshold_distance    = 1.25                                                    # distance between robot and human in meters.
     param_plage_distance        = 0.3                                                  # threshold_distance +- plage_distance
     param_threshold_pixel_angle = 150
     threshold_angle             = 25                                                   # threshold to have to go to keypoint.
@@ -352,9 +352,9 @@ def thread_compute_command(params):
         np.set_printoptions(suppress = True)
         #print("Data Ultra song : ", data_ultrasensor)
         #print("Data position   : ", data_position)
-        #print("Data detection  : ", data_detection)
+        print("Data detection  : ", data_detection)
         #print("Robot_state     : ", global_state)
-        print("Last_command_mi : ", last_command_micro)
+        #print("Last_command_mi : ", last_command_micro)
         # print("User command    : ", user_command)
         # print("\n")
         time.sleep(0.001)
@@ -374,13 +374,13 @@ def thread_compute_command(params):
                 if data_detection[0] > param_threshold_pixel_angle:
                     # need to turn right.
                     new_command = True
-                    command_micro = np.array([ 1, 250*fd, 1, 250*fd, 0, 250*fd, 0, 250*fd])
+                    command_micro = np.array([ 1, 80, 1, 80, 0, 80, 0, 80])
                     last_command_micro = send_command_v2(last_command_micro, command_micro, ser)
 
                 if data_detection[0] < -param_threshold_pixel_angle and not new_command:
                     # need to turn left.
                     new_command = True
-                    command_micro = np.array([ 0, 250*fd, 0, 250*fd, 1, 250*fd, 1, 250*fd])
+                    command_micro = np.array([ 0, 80, 0, 80, 1, 80, 1, 80])
                     last_command_micro = send_command_v2(last_command_micro, command_micro, ser)
 
                 if data_detection[1] > (param_threshold_distance+param_plage_distance) and not new_command:
@@ -423,7 +423,7 @@ def thread_compute_command(params):
             if not new_command:
                 command_micro = np.array([ 0,   0*fd, 0,   0*fd, 0,   0*fd, 0,   0*fd])
                 last_command_micro = send_command_v2(last_command_micro, command_micro, ser)
-            
+            send_command_v2
             # else:
             #     # we don't detect human.
             #     if(global_state == Robot_state.FOLLOWING):
@@ -468,7 +468,7 @@ def thread_compute_command(params):
                     distance_deg = 360 - ((current_angle - angle_direction) % 360)
                     if distance_deg > threshold_angle:
                         # turn left.
-                        command_micro = np.array([ 0, 250*fd, 0, 250*fd, 1, 250*fd, 1, 250*fd])
+                        command_micro = np.array([ 0, 80, 0, 80, 1, 80, 1, 80])
                         last_command_micro = send_command_v2(last_command_micro, command_micro, ser)
                     else:
                         # GO forward.
@@ -478,7 +478,7 @@ def thread_compute_command(params):
                     distance_deg = (current_angle - angle_direction) % 360
                     if distance_deg > threshold_angle:
                         # turn right.
-                        command_micro = np.array([ 1, 250*fd, 1, 250*fd, 0, 250*fd, 0, 250*fd])
+                        command_micro = np.array([ 1, 80, 1, 80, 0, 80, 0, 80])
                         last_command_micro = send_command_v2(last_command_micro, command_micro, ser)
                     else:
                         # GO forward.
