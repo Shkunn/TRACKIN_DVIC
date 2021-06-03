@@ -57,11 +57,11 @@ def initialize():
     fd = float(args.fd)
     
     # ZED CAMERA CONFIGURATION.        
-    zed = sl.Camera()
-    init_params = sl.InitParameters()
+    zed                           = sl.Camera()
+    init_params                   = sl.InitParameters()
     init_params.camera_resolution = sl.RESOLUTION.HD720                             # Use HD720 video mode.
-    init_params.camera_fps = 15                             
-    init_params.coordinate_units = sl.UNIT.METER                                    # Set coordinate units.
+    init_params.camera_fps        = 60                             
+    init_params.coordinate_units  = sl.UNIT.METER                                    # Set coordinate units.
     init_params.coordinate_system = sl.COORDINATE_SYSTEM.RIGHT_HANDED_Z_UP_X_FWD
     
     if(zed.open(init_params) != sl.ERROR_CODE.SUCCESS):                             
@@ -75,26 +75,28 @@ def initialize():
 
     print(f"[INIT] - open camera zed 2.")
     # ZED OBJECT CONFIGURATION.
-    image = sl.Mat()                                                                # Left image from camera.
-    pose = sl.Pose()  
+    image   = sl.Mat()                                                                # Left image from camera.
+    pose    = sl.Pose()  
     runtime = sl.RuntimeParameters()
 
     # ZED OBJECT DETECTION CONFIGURATION.
-    obj_param = sl.ObjectDetectionParameters()
-    obj_param.enable_tracking = True                                                # tracking object.
+    obj_param                     = sl.ObjectDetectionParameters()
+    obj_param.enable_tracking     = True                                                # tracking object.
+    obj_param.detection_model     = sl.DETECTION_MODEL.HUMAN_BODY_FAST
+    obj_param.enable_body_fitting = True
     if(zed.enable_object_detection(obj_param) != sl.ERROR_CODE.SUCCESS):             
         print("[ERR0] Can't enable object detection on camera zed 2.")
         exit(-1)
 
-    obj_runtime_param = sl.ObjectDetectionRuntimeParameters()
+    obj_runtime_param                                = sl.ObjectDetectionRuntimeParameters()
     obj_runtime_param.detection_confidence_threshold = 75
-    obj_runtime_param.object_class_filter = [sl.OBJECT_CLASS.PERSON]                # Only detect Persons
+    # obj_runtime_param.object_class_filter = [sl.OBJECT_CLASS.PERSON]                # Only detect Persons
     objects = sl.Objects()
     print(f"[INIT] - all process on zed 2 are running.")
     
     # OPEN COMMUNICATION WITH MICRO-CONTROLER.
-    port_name = get_usb()                                                           # get automaticly the micro controler.
-    ser = Serial(port_name, 115200)
+    port_name      = get_usb()                                                           # get automaticly the micro controler.
+    ser            = Serial(port_name, 115200)
     commande_motor = 'e'
     if(ser.write(commande_motor.encode()) != 1):
         print(f"[ERR0] Can't call microcontroler on port {port_name}.")
@@ -248,7 +250,7 @@ def thread_slam(params):
     last_time = time.time()
 
     while True:
-        print("SLAM THREAD HZ : ", 1/(time.time() - last_time))
+        print("HZ SLAM THREAD    :", 1/(time.time() - last_time))
         last_time = time.time()
 
         # GET IMAGE.
@@ -336,16 +338,16 @@ def thread_compute_command(params):
         print(f"HZ thread command : {1/(time.time()-last_time)}")
         last_time = time.time()
         # ultra son data.
-        os.system('cls' if os.name == 'nt' else 'clear')
+        #os.system('cls' if os.name == 'nt' else 'clear')
         np.set_printoptions(suppress = True)
-        print("Data Ultra song : ", data_ultrasensor)
-        print("Data position   : ", data_position)
-        print("Data detection  : ", data_detection)
-        print("Robot_state     : ", global_state)
+        #print("Data Ultra song : ", data_ultrasensor)
+        #print("Data position   : ", data_position)
+        #print("Data detection  : ", data_detection)
+        #print("Robot_state     : ", global_state)
         print("Last_command_mi : ", last_command_micro)
         # print("User command    : ", user_command)
         # print("\n")
-        time.sleep(0.01)
+        time.sleep(0.001)
 
         # main algo begin at this moment.
         if(global_state == Robot_state.MANUALMODE):
@@ -354,10 +356,10 @@ def thread_compute_command(params):
 
         if(global_state == Robot_state.FOLLOWING or global_state == Robot_state.LOST):
             # in this mode, the robot need to see humain and follow them.
+            new_command = False
             if data_detection[2] > 0:
                 # we detect human ! No we need to select which command to send.
                 lobal_state = Robot_state.FOLLOWING
-                new_command = False
 
                 if data_detection[0] > param_threshold_pixel_angle:
                     # need to turn right.
@@ -408,10 +410,10 @@ def thread_compute_command(params):
                     command_micro = np.array([ 1, 250*fd, 1, 250*fd, 1, 250*fd, 1, 250*fd])
                     last_command_micro = send_command_v2(last_command_micro, command_micro, ser)
 
-                if not new_command:
-                    command_micro = np.array([ 0,   0*fd, 0,   0*fd, 0,   0*fd, 0,   0*fd])
-                    last_command_micro = send_command_v2(last_command_micro, command_micro, ser)
-                
+            if not new_command:
+                command_micro = np.array([ 0,   0*fd, 0,   0*fd, 0,   0*fd, 0,   0*fd])
+                last_command_micro = send_command_v2(last_command_micro, command_micro, ser)
+            
             # else:
             #     # we don't detect human.
             #     if(global_state == Robot_state.FOLLOWING):
@@ -507,7 +509,7 @@ def thread_listen_sensor(ser):
         data = ser.readline()
         encodor_data  = (data.decode('utf-8')).split(sep='/')
         
-        if len(encodor_data) == 5:
+        if len(encodor_data) == 5 and encodor_data[0] != '':
             data_ultrasensor[0] = float(encodor_data[0])
             data_ultrasensor[1] = float(encodor_data[1])
             data_ultrasensor[2] = float(encodor_data[2])
