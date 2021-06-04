@@ -439,6 +439,7 @@ def thread_compute_command(params):
                             new_command = True
                             command_micro = np.array([ 0, 250*fd, 0, 250*fd, 0, 250*fd, 0, 250*fd])
                             last_command_micro = send_command_v2(last_command_micro, command_micro, ser)
+                            print("FORWARD")
                         else:
                             # can't go forward
                             if((data_ultrasensor[1] == 0) and (data_ultrasensor[2] == 0)):
