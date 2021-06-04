@@ -1,6 +1,7 @@
 from utils.fonction import *
 from utils.list_ports import *
 from serial import Serial
+from imutils.video import VideoStream
 
 import math as m
 import argparse
@@ -11,6 +12,7 @@ import pyzed.sl as sl
 import threading
 import time
 import socket
+import imagezmq
 
 
 """
@@ -28,6 +30,7 @@ keypoint_to_home   = np.zeros((1,3))                                            
 is_debug_option    = False
 fd                 = 0.5                                                                # factor diminution of motor power
 courbe             = 0                                                                  # smooth turn set to 1 
+sender             = None                                                               # important stuf to send stream video
 
 """
 Define the IP address and the Port Number
@@ -42,7 +45,7 @@ def initialize():
     """
         DESCRIPTION  : Init all parameters.
     """
-    global global_state, is_debug_option, fd, courbe
+    global global_state, is_debug_option, fd, courbe, sender
 
     # READ OPTION ARG.
     parser = argparse.ArgumentParser()
@@ -51,6 +54,7 @@ def initialize():
     parser.add_argument("fd", help="fd is the factor to decrease the power of our motors")
     parser.add_argument("model", help="you can choose your model : 1 for HUMAN_BODY_FAST | 2 for MULTI_CLASS_BOX_MEDIUM | 3 for MULTI_CLASS_BOX")  
     parser.add_argument("courbe", help="pass courbe to 1 if you want the robot to curve")                                                                          # you can choose your model.
+    parser.add_argument("ip_server", help="ip adress of server")
     args = parser.parse_args()
 
     # DEBUG OPTION.
@@ -62,6 +66,9 @@ def initialize():
 
     # COURBE OPTION.
     courbe = float(args.courbe)
+
+    # STREAM VIDEO INIT.
+    sender = imagezmq.ImageSender(connect_to=f"tcp://{args.ip_server}:5555")
     
     # ZED CAMERA CONFIGURATION.        
     zed                           = sl.Camera()
@@ -265,6 +272,8 @@ def thread_slam(params):
 
     last_time = time.time()
 
+    hostname = socket.gethostname()
+
     while True:
         print("HZ SLAM THREAD    :", 1/(time.time() - last_time))
         last_time = time.time()
@@ -322,6 +331,8 @@ def thread_slam(params):
 
         # DEBUG SHOWING WINDOWS
         
+        sender.send_image(hostname, image_draw)
+
         # cv2.WINDOW_NORMAL
         # cv2.namedWindow("windows",0)
         # cv2.imshow("windows", image_draw)
