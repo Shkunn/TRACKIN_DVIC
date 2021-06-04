@@ -27,6 +27,7 @@ last_command_micro = np.zeros(8)                                                
 keypoint_to_home   = np.zeros((1,3))                                                    # format(format(axes y position, distance, nombre object))
 is_debug_option    = False
 fd                 = 0.5                                                                # factor diminution of motor power
+courbe             = 0                                                                  # smooth turn set to 1 
 
 """
 Define the IP address and the Port Number
@@ -364,9 +365,6 @@ def thread_compute_command(params):
         # print("\n")
         time.sleep(0.001)
 
-        if(args.courbe == "1"):
-            pass
-
         # main algo begin at this moment.
         if(global_state == Robot_state.MANUALMODE):
             # in this mode, operator can control all robot action.
@@ -380,17 +378,17 @@ def thread_compute_command(params):
                 lobal_state = Robot_state.FOLLOWING
 
 
-                if(courbe == "1"):
+                if(courbe == 1):
                     if data_detection[0] > param_threshold_pixel_angle:
                         #smooth turn right
                         new_command = True
-                        command_micro = np.array([ 0, 80 * (1 - (data_detection[0] / 1000)), 0, 80 * (1 - (data_detection[0] / 1000)), 0, 80 * (1 + (data_detection[0] / 1000)), 0, 80 * (1 + (data_detection[0] / 1000))])
+                        command_micro = np.array([ 0, 250 * fd * (1 - (data_detection[0] / 1000)), 0, 250 * fd * (1 - (data_detection[0] / 1000)), 0, 250 * fd * (1 + (data_detection[0] / 1000)), 0, 250 * fd * (1 + (data_detection[0] / 1000))])
                         last_command_micro = send_command_v2(last_command_micro, command_micro, ser)
 
                     if data_detection[0] < -param_threshold_pixel_angle and not new_command:
                         # need to turn left.
                         new_command = True
-                        command_micro = np.array([ 0, 80 * (1 + (-data_detection[0] / 1000)), 0, 80 * (1 + (-data_detection[0] / 1000)), 0, 80 * (1 - (-data_detection[0] / 1000)), 0, 80 * (1 - (-data_detection[0] / 1000))])
+                        command_micro = np.array([ 0, 25 * fd * (1 + (-data_detection[0] / 1000)), 0, 250 * fd * (1 + (-data_detection[0] / 1000)), 0, 250 * fd * (1 - (-data_detection[0] / 1000)), 0, 250 * fd * (1 - (-data_detection[0] / 1000))])
                         last_command_micro = send_command_v2(last_command_micro, command_micro, ser)
                     
                     if data_detection[1] > (param_threshold_distance+param_plage_distance) and not new_command:
