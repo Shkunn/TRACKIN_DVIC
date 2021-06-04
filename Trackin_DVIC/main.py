@@ -430,34 +430,36 @@ def thread_compute_command(params):
 
                     if data_detection[1] > (param_threshold_distance+param_plage_distance) and not new_command:
                         # need to forward.
-                        new_command = True
-                        command_micro = np.array([ 0, 250*fd, 0, 250*fd, 0, 250*fd, 0, 250*fd])
-                        last_command_micro = send_command_v2(last_command_micro, command_micro, ser)
+                        # new_command = True
+                        # command_micro = np.array([ 0, 250*fd, 0, 250*fd, 0, 250*fd, 0, 250*fd])
+                        # last_command_micro = send_command_v2(last_command_micro, command_micro, ser)
 
-                        # # check if forward is available
-                        # if(data_ultrasensor[0] > 300 or data_ultrasensor[0] == 0):
-                        #     last_command_micro = send_command_v2(last_command_micro, command_micro, ser)
-                        # else:
-                        #     # can't go forward
-                        #     if((data_ultrasensor[1] == 0) and (data_ultrasensor[2] == 0)):
-                        #         # if both are free, go left.
-                        #         command_micro = np.array([ 0,    600, 0,    600, 0,    600, 0,    600])
-                        #         last_command_micro = send_command_v2(last_command_micro, command_micro, ser)
+                        # check if forward is available
+                        if(data_ultrasensor[0] > 300 or data_ultrasensor[0] == 0):
+                            new_command = True
+                            command_micro = np.array([ 0, 250*fd, 0, 250*fd, 0, 250*fd, 0, 250*fd])
+                            last_command_micro = send_command_v2(last_command_micro, command_micro, ser)
+                        else:
+                            # can't go forward
+                            if((data_ultrasensor[1] == 0) and (data_ultrasensor[2] == 0)):
+                                # if both are free, go left.
+                                command_micro = np.array([ 0,    600, 0,    600, 0,    600, 0,    600])
+                                last_command_micro = send_command_v2(last_command_micro, command_micro, ser)
 
-                        #     if(data_ultrasensor[1] > data_ultrasensor[2] and data_ultrasensor[2] != 0):
-                        #         # go left
-                        #         command_micro = np.array([ 0,    600, 0,    600, 0,    600, 0,    600])
-                        #         last_command_micro = send_command_v2(last_command_micro, command_micro, ser)
+                            if(data_ultrasensor[1] > data_ultrasensor[2] and data_ultrasensor[2] != 0):
+                                # go left
+                                command_micro = np.array([ 0,    600, 0,    600, 0,    600, 0,    600])
+                                last_command_micro = send_command_v2(last_command_micro, command_micro, ser)
 
-                        #     if(data_ultrasensor[1] < data_ultrasensor[2] and data_ultrasensor[1] != 0):
-                        #         # go right
-                        #         command_micro = np.array([ 0,    700, 0,    700, 0,    700, 0,    700])
-                        #         last_command_micro = send_command_v2(last_command_micro, command_micro, ser)
+                            if(data_ultrasensor[1] < data_ultrasensor[2] and data_ultrasensor[1] != 0):
+                                # go right
+                                command_micro = np.array([ 0,    700, 0,    700, 0,    700, 0,    700])
+                                last_command_micro = send_command_v2(last_command_micro, command_micro, ser)
 
-                        #     if((data_ultrasensor[1] < 300) and (data_ultrasensor[2] < 300) \
-                        #         and (data_ultrasensor[1] != 0) and (data_ultrasensor[2] != 0)):
-                        #         # block so stop
-                        #         new_command = False
+                            if((data_ultrasensor[1] < 300) and (data_ultrasensor[2] < 300) \
+                                and (data_ultrasensor[1] != 0) and (data_ultrasensor[2] != 0)):
+                                # block so stop
+                                new_command = False
 
                     if data_detection[1] < (param_threshold_distance-param_plage_distance) and not new_command:
                         # need to backward.
