@@ -41,21 +41,26 @@ def initialize():
     """
         DESCRIPTION  : Init all parameters.
     """
-    global global_state, is_debug_option, fd
+    global global_state, is_debug_option, fd, courbe
 
     # READ OPTION ARG.
     parser = argparse.ArgumentParser()
-    parser.add_argument("id_name")                                                  # name to get ip adress.
-    parser.add_argument("debug")
-    parser.add_argument("fd")
-    parser.add_argument("model")                                                    # you can choose your model.
+    parser.add_argument("id_name", help="id_name is a joke ;)")                                                  # name to get ip adress.
+    parser.add_argument("debug", help="pass debug to 1 if you want more info")
+    parser.add_argument("fd", help="fd is the factor to decrease the power of our motors")
+    parser.add_argument("model", help="you can choose your model : 1 for HUMAN_BODY_FAST | 2 for MULTI_CLASS_BOX_MEDIUM | 3 for MULTI_CLASS_BOX")  
+    parser.add_argument("courbe", help="pass courbe to 1 if you want the robot to curve")                                                                          # you can choose your model.
     args = parser.parse_args()
 
     # DEBUG OPTION.
     if(args.debug == "1"):
         is_debug_option = True
 
+    # FACTOR OPTION.
     fd = float(args.fd)
+
+    # COURBE OPTION.
+    courbe = float(args.courbe)
     
     # ZED CAMERA CONFIGURATION.        
     zed                           = sl.Camera()
@@ -328,7 +333,7 @@ def thread_compute_command(params):
                     and take decision to send to micro controler.
     """
     zed, image, pose, ser, sock, runtime, objects, obj_runtime_param = params
-    global data_ultrasensor, data_position, data_detection, global_state, user_command, last_command_micro, keypoint_to_home, is_debug_option, fd
+    global data_ultrasensor, data_position, data_detection, global_state, user_command, last_command_micro, keypoint_to_home, is_debug_option, fd, courbe
 
     """
         INFO         : This is all local variable required for this thread.
@@ -359,6 +364,9 @@ def thread_compute_command(params):
         # print("\n")
         time.sleep(0.001)
 
+        if(args.courbe == "1"):
+            pass
+
         # main algo begin at this moment.
         if(global_state == Robot_state.MANUALMODE):
             # in this mode, operator can control all robot action.
@@ -371,81 +379,108 @@ def thread_compute_command(params):
                 # we detect human ! No we need to select which command to send.
                 lobal_state = Robot_state.FOLLOWING
 
-                if data_detection[0] > param_threshold_pixel_angle:
-                    # need to turn right.
-                    new_command = True
-                    command_micro = np.array([ 1, 80, 1, 80, 0, 80, 0, 80])
-                    last_command_micro = send_command_v2(last_command_micro, command_micro, ser)
 
-                if data_detection[0] < -param_threshold_pixel_angle and not new_command:
-                    # need to turn left.
-                    new_command = True
-                    command_micro = np.array([ 0, 80, 0, 80, 1, 80, 1, 80])
-                    last_command_micro = send_command_v2(last_command_micro, command_micro, ser)
+                if(courbe == "1"):
+                    if data_detection[0] > param_threshold_pixel_angle:
+                        #smooth turn right
+                        new_command = True
+                        command_micro = np.array([ 0, 80 * (1 - (data_detection[0] / 1000)), 0, 80 * (1 - (data_detection[0] / 1000)), 0, 80 * (1 + (data_detection[0] / 1000)), 0, 80 * (1 + (data_detection[0] / 1000))])
+                        last_command_micro = send_command_v2(last_command_micro, command_micro, ser)
 
-                if data_detection[1] > (param_threshold_distance+param_plage_distance) and not new_command:
-                    # need to forward.
-                    new_command = True
-                    command_micro = np.array([ 0, 250*fd, 0, 250*fd, 0, 250*fd, 0, 250*fd])
-                    last_command_micro = send_command_v2(last_command_micro, command_micro, ser)
+                    if data_detection[0] < -param_threshold_pixel_angle and not new_command:
+                        # need to turn left.
+                        new_command = True
+                        command_micro = np.array([ 0, 80 * (1 + (-data_detection[0] / 1000)), 0, 80 * (1 + (-data_detection[0] / 1000)), 0, 80 * (1 - (-data_detection[0] / 1000)), 0, 80 * (1 - (-data_detection[0] / 1000))])
+                        last_command_micro = send_command_v2(last_command_micro, command_micro, ser)
+                    
+                    if data_detection[1] > (param_threshold_distance+param_plage_distance) and not new_command:
+                        # need to forward.
+                        new_command = True
+                        command_micro = np.array([ 0, 250*fd, 0, 250*fd, 0, 250*fd, 0, 250*fd])
+                        last_command_micro = send_command_v2(last_command_micro, command_micro, ser)
 
-                    # # check if forward is available
-                    # if(data_ultrasensor[0] > 300 or data_ultrasensor[0] == 0):
-                    #     last_command_micro = send_command_v2(last_command_micro, command_micro, ser)
-                    # else:
-                    #     # can't go forward
-                    #     if((data_ultrasensor[1] == 0) and (data_ultrasensor[2] == 0)):
-                    #         # if both are free, go left.
-                    #         command_micro = np.array([ 0,    600, 0,    600, 0,    600, 0,    600])
-                    #         last_command_micro = send_command_v2(last_command_micro, command_micro, ser)
+                    if data_detection[1] < (param_threshold_distance-param_plage_distance) and not new_command:
+                        # need to backward.
+                        new_command = True
+                        command_micro = np.array([ 1, 250*fd, 1, 250*fd, 1, 250*fd, 1, 250*fd])
+                        last_command_micro = send_command_v2(last_command_micro, command_micro, ser)
 
-                    #     if(data_ultrasensor[1] > data_ultrasensor[2] and data_ultrasensor[2] != 0):
-                    #         # go left
-                    #         command_micro = np.array([ 0,    600, 0,    600, 0,    600, 0,    600])
-                    #         last_command_micro = send_command_v2(last_command_micro, command_micro, ser)
+                else:
 
-                    #     if(data_ultrasensor[1] < data_ultrasensor[2] and data_ultrasensor[1] != 0):
-                    #         # go right
-                    #         command_micro = np.array([ 0,    700, 0,    700, 0,    700, 0,    700])
-                    #         last_command_micro = send_command_v2(last_command_micro, command_micro, ser)
+                    if data_detection[0] > param_threshold_pixel_angle:
+                        # need to turn right.
+                        new_command = True
+                        command_micro = np.array([ 1, 80, 1, 80, 0, 80, 0, 80])
+                        last_command_micro = send_command_v2(last_command_micro, command_micro, ser)
 
-                    #     if((data_ultrasensor[1] < 300) and (data_ultrasensor[2] < 300) \
-                    #         and (data_ultrasensor[1] != 0) and (data_ultrasensor[2] != 0)):
-                    #         # block so stop
-                    #         new_command = False
+                    if data_detection[0] < -param_threshold_pixel_angle and not new_command:
+                        # need to turn left.
+                        new_command = True
+                        command_micro = np.array([ 0, 80, 0, 80, 1, 80, 1, 80])
+                        last_command_micro = send_command_v2(last_command_micro, command_micro, ser)
 
-                if data_detection[1] < (param_threshold_distance-param_plage_distance) and not new_command:
-                    # need to backward.
-                    new_command = True
-                    command_micro = np.array([ 1, 250*fd, 1, 250*fd, 1, 250*fd, 1, 250*fd])
-                    last_command_micro = send_command_v2(last_command_micro, command_micro, ser)
+                    if data_detection[1] > (param_threshold_distance+param_plage_distance) and not new_command:
+                        # need to forward.
+                        new_command = True
+                        command_micro = np.array([ 0, 250*fd, 0, 250*fd, 0, 250*fd, 0, 250*fd])
+                        last_command_micro = send_command_v2(last_command_micro, command_micro, ser)
+
+                        # # check if forward is available
+                        # if(data_ultrasensor[0] > 300 or data_ultrasensor[0] == 0):
+                        #     last_command_micro = send_command_v2(last_command_micro, command_micro, ser)
+                        # else:
+                        #     # can't go forward
+                        #     if((data_ultrasensor[1] == 0) and (data_ultrasensor[2] == 0)):
+                        #         # if both are free, go left.
+                        #         command_micro = np.array([ 0,    600, 0,    600, 0,    600, 0,    600])
+                        #         last_command_micro = send_command_v2(last_command_micro, command_micro, ser)
+
+                        #     if(data_ultrasensor[1] > data_ultrasensor[2] and data_ultrasensor[2] != 0):
+                        #         # go left
+                        #         command_micro = np.array([ 0,    600, 0,    600, 0,    600, 0,    600])
+                        #         last_command_micro = send_command_v2(last_command_micro, command_micro, ser)
+
+                        #     if(data_ultrasensor[1] < data_ultrasensor[2] and data_ultrasensor[1] != 0):
+                        #         # go right
+                        #         command_micro = np.array([ 0,    700, 0,    700, 0,    700, 0,    700])
+                        #         last_command_micro = send_command_v2(last_command_micro, command_micro, ser)
+
+                        #     if((data_ultrasensor[1] < 300) and (data_ultrasensor[2] < 300) \
+                        #         and (data_ultrasensor[1] != 0) and (data_ultrasensor[2] != 0)):
+                        #         # block so stop
+                        #         new_command = False
+
+                    if data_detection[1] < (param_threshold_distance-param_plage_distance) and not new_command:
+                        # need to backward.
+                        new_command = True
+                        command_micro = np.array([ 1, 250*fd, 1, 250*fd, 1, 250*fd, 1, 250*fd])
+                        last_command_micro = send_command_v2(last_command_micro, command_micro, ser)
 
             if not new_command:
                 command_micro = np.array([ 0,   0*fd, 0,   0*fd, 0,   0*fd, 0,   0*fd])
                 last_command_micro = send_command_v2(last_command_micro, command_micro, ser)
-            send_command_v2
-            # else:
-            #     # we don't detect human.
-            #     if(global_state == Robot_state.FOLLOWING):
-            #         lost_time = time.time()
-            #         global_state = Robot_state.LOST
-            #         command_micro = np.array([ 0,   0*fd, 0,   0*fd, 0,   0*fd, 0,   0*fd])
-            #         last_command_micro = send_command_v2(last_command_micro, command_micro, ser)
+                # else:
+                #     # we don't detect human.
+                #     if(global_state == Robot_state.FOLLOWING):
+                #         lost_time = time.time()
+                #         global_state = Robot_state.LOST
+                #         command_micro = np.array([ 0,   0*fd, 0,   0*fd, 0,   0*fd, 0,   0*fd])
+                #         last_command_micro = send_command_v2(last_command_micro, command_micro, ser)
 
-            #     if(global_state == Robot_state.LOST and (time.time() - lost_time) > 10):
-            #         # we are in Robot_state.LOST since 2.0 secondes.
-            #         # so we will turn in one turn.
-            #         # Turn left.
-            #         command_micro      = np.array([ 0, 250*fd, 0, 250*fd, 1, 250*fd, 1, 250*fd])
-            #         last_command_micro = send_command_v2(last_command_micro, command_micro, ser)
-            #         turn_time          = time.time()
-            #         while((time.time() - turn_time) > 4):
-            #             if data_detection[2] > 0:
-            #                 # we detect human during turn left.
-            #                 break
-            #             # if no found, this line allow robot to stop for 2 secondes before turning.
-            #             lost_time = time.time()
-    
+                #     if(global_state == Robot_state.LOST and (time.time() - lost_time) > 10):
+                #         # we are in Robot_state.LOST since 2.0 secondes.
+                #         # so we will turn in one turn.
+                #         # Turn left.
+                #         command_micro      = np.array([ 0, 250*fd, 0, 250*fd, 1, 250*fd, 1, 250*fd])
+                #         last_command_micro = send_command_v2(last_command_micro, command_micro, ser)
+                #         turn_time          = time.time()
+                #         while((time.time() - turn_time) > 4):
+                #             if data_detection[2] > 0:
+                #                 # we detect human during turn left.
+                #                 break
+                #             # if no found, this line allow robot to stop for 2 secondes before turning.
+                #             lost_time = time.time()
+        
         if(global_state == Robot_state.HOME):
 
             if is_debug_option:

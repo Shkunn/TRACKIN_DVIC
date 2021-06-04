@@ -2,7 +2,7 @@ from serial import Serial
 import time
 import numpy as np
 
-arduino = Serial(port='/dev/ttyACM0', baudrate=115200, timeout=.1)
+arduino = Serial(port='/dev/ttyACM1', baudrate=115200, timeout=.1)
 
 def write_read(bf1, FR, bf2, RR, bf3, FL, bf4, RL):
     """
