@@ -381,7 +381,7 @@ def thread_compute_command(params):
                     if data_detection[0] > param_threshold_pixel_angle and data_detection[1] > (param_threshold_distance+param_plage_distance):
                         #smooth turn right
                         new_command = True
-                        command_micro = np.array([ 0, 250 * fd * (1 - (data_detection[0] * data_detection[0] / 1000000)), 0, 250 * fd * (1 - (data_detection[0] * data_detection[0] / 1000000)), 0, 250 * fd * (1 + (data_detection[0] * data_detection[0] / 1000000)), 0, 250 * fd * (1 + (data_detection[0] * data_detection[0] / 1000000))])
+                        command_micro = np.array([ 0, 250 * fd * m.pow((1 - (data_detection[0] / 1000)), 2), 0, 250 * fd * m.pow((1 - (data_detection[0] / 1000)), 2), 0, 250 * fd * m.pow((1 + (data_detection[0] / 1000)), 2), 0, 250 * fd * m.pow((1 + (data_detection[0] / 1000)), 2)])
                         last_command_micro = send_command_v2(last_command_micro, command_micro, ser)
                     
                     if data_detection[0] > param_threshold_pixel_angle and data_detection[1] >= (param_threshold_distance-param_plage_distance) and data_detection[1] <= (param_threshold_distance+param_plage_distance) and not new_command:
@@ -393,7 +393,7 @@ def thread_compute_command(params):
                     if data_detection[0] < -param_threshold_pixel_angle and data_detection[1] > (param_threshold_distance+param_plage_distance) and not new_command:
                         # smooth turn left.
                         new_command = True
-                        command_micro = np.array([ 0, 250 * fd * (1 + (data_detection[0] * data_detection[0] / 1000000)), 0, 250 * fd * (1 + (data_detection[0] * data_detection[0] / 1000000)), 0, 250 * fd * (1 - (data_detection[0] * data_detection[0] / 1000000)), 0, 250 * fd * (1 - (data_detection[0] * data_detection[0] / 1000000))])
+                        command_micro = np.array([ 0, 250 * fd * m.pow((1 + (-data_detection[0] / 1000)), 2), 0, 250 * fd * m.pow((1 + (-data_detection[0] / 1000)), 2), 0, 250 * fd * m.pow((1 - (-data_detection[0] / 1000)), 2), 0, 250 * fd * m.pow((1 - (-data_detection[0] / 1000)), 2)])
                         last_command_micro = send_command_v2(last_command_micro, command_micro, ser)
 
                     if data_detection[0] < -param_threshold_pixel_angle and data_detection[1] >= (param_threshold_distance-param_plage_distance) and data_detection[1] <= (param_threshold_distance+param_plage_distance) and not new_command:
