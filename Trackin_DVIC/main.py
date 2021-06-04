@@ -377,18 +377,29 @@ def thread_compute_command(params):
                 # we detect human ! No we need to select which command to send.
                 lobal_state = Robot_state.FOLLOWING
 
-
                 if(courbe == 1):
-                    if data_detection[0] > param_threshold_pixel_angle:
+                    if data_detection[0] > param_threshold_pixel_angle and data_detection[1] > (param_threshold_distance+param_plage_distance):
                         #smooth turn right
                         new_command = True
                         command_micro = np.array([ 0, 250 * fd * (1 - (data_detection[0] / 1000)), 0, 250 * fd * (1 - (data_detection[0] / 1000)), 0, 250 * fd * (1 + (data_detection[0] / 1000)), 0, 250 * fd * (1 + (data_detection[0] / 1000))])
                         last_command_micro = send_command_v2(last_command_micro, command_micro, ser)
-
-                    if data_detection[0] < -param_threshold_pixel_angle and not new_command:
-                        # need to turn left.
+                    
+                    if data_detection[0] > param_threshold_pixel_angle and data_detection[1] >= (param_threshold_distance-param_plage_distance) and data_detection[1] <= (param_threshold_distance+param_plage_distance) and not new_command:
+                        #turn right
                         new_command = True
-                        command_micro = np.array([ 0, 25 * fd * (1 + (-data_detection[0] / 1000)), 0, 250 * fd * (1 + (-data_detection[0] / 1000)), 0, 250 * fd * (1 - (-data_detection[0] / 1000)), 0, 250 * fd * (1 - (-data_detection[0] / 1000))])
+                        command_micro = np.array([ 1, 80, 1, 80, 0, 80, 0, 80])
+                        last_command_micro = send_command_v2(last_command_micro, command_micro, ser)
+
+                    if data_detection[0] < -param_threshold_pixel_angle and data_detection[1] > (param_threshold_distance+param_plage_distance) and not new_command:
+                        # smooth turn left.
+                        new_command = True
+                        command_micro = np.array([ 0, 250 * fd * (1 + (-data_detection[0] / 1000)), 0, 250 * fd * (1 + (-data_detection[0] / 1000)), 0, 250 * fd * (1 - (-data_detection[0] / 1000)), 0, 250 * fd * (1 - (-data_detection[0] / 1000))])
+                        last_command_micro = send_command_v2(last_command_micro, command_micro, ser)
+
+                    if data_detection[0] < -param_threshold_pixel_angle and data_detection[1] >= (param_threshold_distance-param_plage_distance) and data_detection[1] <= (param_threshold_distance+param_plage_distance) and not new_command:
+                        #turn left
+                        new_command = True
+                        command_micro = np.array([ 0, 80, 0, 80, 1, 80, 1, 80])
                         last_command_micro = send_command_v2(last_command_micro, command_micro, ser)
                     
                     if data_detection[1] > (param_threshold_distance+param_plage_distance) and not new_command:
