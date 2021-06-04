@@ -453,23 +453,26 @@ def thread_compute_command(params):
                             print("FORWARD")
                         else:
                             # can't go forward
-                            if((data_ultrasensor[1] == 0) and (data_ultrasensor[2] == 0)):
+                            if((data_ultrasensor[1] == 0) and (data_ultrasensor[2] == 0) and not new_command):
                                 # if both are free, go left.
+                                new_command = True
                                 command_micro = np.array([ 0,    600, 0,    600, 0,    600, 0,    600])
                                 last_command_micro = send_command_v2(last_command_micro, command_micro, ser)
 
-                            if(data_ultrasensor[1] > data_ultrasensor[2] and data_ultrasensor[2] != 0):
+                            if(data_ultrasensor[1] > data_ultrasensor[2] and data_ultrasensor[2] != 0 and not new_command):
                                 # go left
+                                new_command = True
                                 command_micro = np.array([ 0,    600, 0,    600, 0,    600, 0,    600])
                                 last_command_micro = send_command_v2(last_command_micro, command_micro, ser)
 
-                            if(data_ultrasensor[1] < data_ultrasensor[2] and data_ultrasensor[1] != 0):
+                            if(data_ultrasensor[1] < data_ultrasensor[2] and data_ultrasensor[1] != 0 and not new_command):
                                 # go right
+                                new_command = True
                                 command_micro = np.array([ 0,    700, 0,    700, 0,    700, 0,    700])
                                 last_command_micro = send_command_v2(last_command_micro, command_micro, ser)
 
                             if((data_ultrasensor[1] < 300) and (data_ultrasensor[2] < 300) \
-                                and (data_ultrasensor[1] != 0) and (data_ultrasensor[2] != 0)):
+                                and (data_ultrasensor[1] != 0) and (data_ultrasensor[2] != 0) and not new_command):
                                 # block so stop
                                 new_command = False
 
