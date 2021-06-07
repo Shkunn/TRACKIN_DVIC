@@ -31,6 +31,8 @@ is_debug_option    = False
 fd                 = 0.5                                                                # factor diminution of motor power
 courbe             = 0                                                                  # smooth turn set to 1 
 sender             = None                                                               # important stuf to send stream video
+human_selected     = False
+id_selected        = -1
 
 """
 Define the IP address and the Port Number
@@ -206,7 +208,7 @@ def thread_listen_server(lock, socket):
     """
         DESCRIPTION  : This thread will listen the server and transfert instruction from it.
     """
-    global message_server, global_state, user_command
+    global message_server, global_state, user_command, human_selected, id_selected
     
     # get all order available for the robot.
     dictionary_order = np.array([
@@ -262,13 +264,26 @@ def thread_listen_server(lock, socket):
                 global_state = Robot_state.MANUALMODE
                 user_command = message_server
 
+            # FOLLOW MODE
+            parse_data = message_server.split('_')
+            if len(parse_data) == 3:
+                # that respect the format of message.
+                # (0, id, "") = desactive humain tracking.
+                # (1, id, "") = active humain tracking.
+                if parse_data[0] == "0":
+                    human_selected = False
+
+                if parse_data[0] == "1":
+                    human_selected = True
+                    id_selected = int(parse_data[1])
+
 def thread_slam(params):
     """
         DESCRIPTION  : This thread will listen the camera zed sdk information and transfert
                     data to other thread. It will also send camera flux to server.
     """
     zed, image, pose, ser, sock, runtime, objects, obj_runtime_param = params
-    global data_position, data_detection, keypoint_to_home, global_state
+    global data_position, data_detection, keypoint_to_home, global_state, human_selected, id_selected
 
     last_time = time.time()
 
@@ -299,28 +314,91 @@ def thread_slam(params):
         zed.retrieve_objects(objects, obj_runtime_param)                                # get 3D objects detection.   
         validation, i    = get_id_nearest_humain(objects)                               # sort all object.
 
-        # DRAW.
+        # # DRAW.
         image_draw = image.get_data()
+
         if validation:
+            if not human_selected:
+                # print(human_selected)
+                index = 0
+                for obj in objects.object_list:
+                    humain        = obj.bounding_box_2d
+                    id            = obj.id
+                        
+                    point_A       = (int(humain[0][0]), int(humain[0][1]))
+                    point_B       = (int(humain[1][0]), int(humain[1][1]))
+                    point_C       = (int(humain[2][0]), int(humain[2][1]))
+                    point_D       = (int(humain[3][0]), int(humain[3][1]))
+                    color         = None
+                    if index == i:
+                        color     = (   0,   0, 255)
+                        data_detection[0] = int((humain[0][0]+humain[1][0])/2) - (int(image_draw.shape[1]/2))
+                        data_detection[1] = obj.position[0]                   # WARING! Normalement il renvoie tout le temps une valeur valide.
+                        data_detection[2] = len(objects.object_list)
+                    else:
+                        color     = (   0, 255,   0)
+                    image_draw    = cv2.line(image_draw, point_A, point_B, color, 5)
+                    image_draw    = cv2.line(image_draw, point_B, point_C, color, 5)
+                    image_draw    = cv2.line(image_draw, point_C, point_D, color, 5)
+                    image_draw    = cv2.line(image_draw, point_D, point_A, color, 5)
+                    
+                    font          = cv2.FONT_HERSHEY_SIMPLEX
+                    fontScale     = 2
+                    fontColor     = (255,255,255)
+                    lineType      = 2
 
-            humain        = objects.object_list[i].bounding_box_2d
-            # print("POINT_A", humain[0][0], humain[0][1])
-            point_A       = (int(humain[0][0]), int(humain[0][1]))
-            point_B       = (int(humain[1][0]), int(humain[1][1]))
-            point_C       = (int(humain[2][0]), int(humain[2][1]))
-            point_D       = (int(humain[3][0]), int(humain[3][1]))
-            color         = (0, 255, 0)
-            image_draw    = cv2.line(image_draw, point_A, point_B, color, 5)
-            image_draw    = cv2.line(image_draw, point_B, point_C, color, 5)  
-            image_draw    = cv2.line(image_draw, point_C, point_D, color, 5)  
-            image_draw    = cv2.line(image_draw, point_D, point_A, color, 5) 
+                    middle_x      = (point_A[0] + point_B[0]) / 2
+                    middle_y      = (point_A[1] + point_D[1]) / 2
 
-            data_detection[0] = int((humain[0][0]+humain[1][0])/2) - (int(image_draw.shape[1]/2))
-            data_detection[1] = objects.object_list[i].position[0] 
-            data_detection[2] = len(objects.object_list)
+                    text = 'ID:' + str(id)
+                    cv2.putText(image_draw, text, 
+                        (int(middle_x), int(middle_y)), 
+                        font, 
+                        fontScale,
+                        fontColor,
+                        lineType)
+                    
+                    index += 1
+                    # print("Humain Detection: ", len(objects.object_list), " HZ: ", value)
+            
+            if human_selected and check_if_search_id_is_present(id, objects):
+                # print(human_selected)
+                id = id_selected
+                objects.get_object_data_from_id(object, id)
+                humain        = object.bounding_box_2d
+
+                point_A       = (int(humain[0][0]), int(humain[0][1]))
+                point_B       = (int(humain[1][0]), int(humain[1][1]))
+                point_C       = (int(humain[2][0]), int(humain[2][1]))
+                point_D       = (int(humain[3][0]), int(humain[3][1]))
+                color         = (255, 0, 0)
+                image_draw    = cv2.line(image_draw, point_A, point_B, color, 5)
+                image_draw    = cv2.line(image_draw, point_B, point_C, color, 5)
+                image_draw    = cv2.line(image_draw, point_C, point_D, color, 5)
+                image_draw    = cv2.line(image_draw, point_D, point_A, color, 5)
+
+                font          = cv2.FONT_HERSHEY_SIMPLEX
+                fontScale     = 2
+                fontColor     = (255,255,255)
+                lineType      = 2
+
+                middle_x      = (point_A[0] + point_B[0]) / 2
+                middle_y      = (point_A[1] + point_D[1]) / 2
+
+                # text = 'ID:' + str(id)
+                cv2.putText(image_draw, str(id), 
+                    (int(middle_x), int(middle_y)), 
+                    font, 
+                    fontScale,
+                    fontColor,
+                    lineType)
+
+                data_detection[0] = int((humain[0][0]+humain[1][0])/2) - (int(image_draw.shape[1]/2))
+                data_detection[1] = objects.object_list[return_index_with_id(id, objects)].position[0]                   # WARING! Normalement il renvoie tout le temps une valeur valide.
+                data_detection[2] = len(objects.object_list)
         else:
             data_detection    = np.zeros(3)  
-
+            
         # RESET MODE.
         if(global_state == Robot_state.RESET):
             reset_transform = sl.Transform()

@@ -154,3 +154,32 @@ def check_if_we_reach_keypoint(point_A, point_B, threshold):
         * point_B    > 1 dimension vector.
     """
     return compute_distance_between_points(point_A, point_B) < threshold
+
+def check_if_search_id_is_present(id, objects):
+    """
+        DESCRIPTION: check if the id select by user interface is 
+            still observable on screen.
+        INPUT:
+        * id         > id select by user.
+        * objects    > list of observable objects.
+    """
+    for obj in objects.object_list:
+        if id == obj.id:
+            return True
+    return False
+
+def return_index_with_id(id, objects):
+    """
+        DESCRIPTION: return the index in list objects with object
+            with this id.
+        INPUT:
+        * id         > id select by user.
+        * objects    > list of observable objects.
+    """
+    index = 0
+    for obj in objects.object_list:
+        if id == obj.id:
+            return index
+        index += 1
+    return -1
+    

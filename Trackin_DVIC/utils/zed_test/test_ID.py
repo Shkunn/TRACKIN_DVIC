@@ -180,7 +180,7 @@ def thread_listen_server(lock, socket):
 
             print(type(message_server))
 
-            message_server =    message_server.split('/')
+            message_server =    message_server.split('_')
             
             # print("ALL: ", message_server)
             # print("0  : ", message_server[0])
