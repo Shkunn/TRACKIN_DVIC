@@ -71,6 +71,10 @@ if __name__ == '__main__':
 
     last_time = time.time()
 
+    # human_dict = {}
+    
+
+
     while True:
         value = 1/(time.time()-last_time)
         last_time = time.time()
@@ -79,9 +83,10 @@ if __name__ == '__main__':
         zed.retrieve_image(image, sl.VIEW.LEFT)                             
         zed.get_position(pose)
 
-        zed.retrieve_objects(objects, obj_runtime_param)                                # get 3D objects detection. 
-        validation, i    = get_id_nearest_humain(objects)                               # sort all object.
+        zed.retrieve_objects(objects, obj_runtime_param)   
 
+        validation, i    = get_id_nearest_humain(objects)                               # sort all object.
+        
         # DRAW.
         image_draw = image.get_data()
         if validation:
@@ -94,19 +99,19 @@ if __name__ == '__main__':
             point_D       = (int(humain[3][0]), int(humain[3][1]))
             color         = (0, 255, 0)
             image_draw    = cv2.line(image_draw, point_A, point_B, color, 5)
-            image_draw    = cv2.line(image_draw, point_B, point_C, color, 5)  
-            image_draw    = cv2.line(image_draw, point_C, point_D, color, 5)  
-            image_draw    = cv2.line(image_draw, point_D, point_A, color, 5) 
+            image_draw    = cv2.line(image_draw, point_B, point_C, color, 5)
+            image_draw    = cv2.line(image_draw, point_C, point_D, color, 5)
+            image_draw    = cv2.line(image_draw, point_D, point_A, color, 5)
 
             middle_High   = (int(image_draw.shape[1]/2), int(0))
             middle_Low    = (int(image_draw.shape[1]/2), int(image_draw.shape[0]))
             color         = (0, 0, 255)
-            image_draw    = cv2.line(image_draw, middle_High, middle_Low, color, 5) 
+            image_draw    = cv2.line(image_draw, middle_High, middle_Low, color, 5)
 
             middle_High   = (int((humain[0][0]+humain[1][0])/2), int(0))
             middle_Low    = (int((humain[0][0]+humain[1][0])/2), int(image_draw.shape[0]))
             color         = (0, 255, 255)
-            image_draw    = cv2.line(image_draw, middle_High, middle_Low, color, 5) 
+            image_draw    = cv2.line(image_draw, middle_High, middle_Low, color, 5)
             # print("VALUE WITH ZEROS CENTER: ", int((humain[0][0]+humain[1][0])/2) - (int(image_draw.shape[1]/2)))
             print("Humain Detection: ", len(objects.object_list), " HZ: ", value)
 
