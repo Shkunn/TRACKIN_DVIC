@@ -289,7 +289,7 @@ def thread_slam(params):
                     data to other thread. It will also send camera flux to server.
     """
     zed, image, pose, ser, sock, runtime, objects, obj_runtime_param = params
-    global data_position, data_detection, keypoint_to_home, global_state, human_selected, id_selected, copy_image_stream, new_image
+    global data_position, data_detection, keypoint_to_home, global_state, human_selected, id_selected, copy_image_stream, new_image, lock
 
     last_time = time.time()
 
@@ -419,7 +419,8 @@ def thread_slam(params):
         # DEBUG SHOWING WINDOWS
         image_draw = cv2.resize(image_draw, (int(352), int(240)))
 
-        new_image = True
+        with lock:
+            new_image = True
         copy_image_stream = image_draw.copy()
         # sender.send_image(hostname, image_draw)
 
