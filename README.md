@@ -49,7 +49,7 @@ Our robot works with five continuous threads which are:
 site to either activate one of the five modes or send data such as the messageit must <br />
 send to the engine
 * **thread_slam** : This thread will listen the camera zed sdk information and transfert <br /> 
-data to other thread. It will also send camera flux to server.
+data to other thread. It will also compute the human detection and then send camera flux to the server.
 * **thread_compute_command** : This thread will analyse the data from thread_SLAM <br /> and
 thread_listen_sensor and take decision to send to micro controler.
 * **thread_listen_sensor** : REX is also equipped with four Arduino ultrason sensor <br />
