@@ -27,6 +27,9 @@ For now, to launch our demo you have to run the `Threadin_DVIC/main.py` on your 
 * **ip_server** : ip adress from where the whebsite is launched  
 
 **For exemple a message looks like this :** `python3 main.py wlp8s0 0 0.5 2 1 172.21.72.133`
+### Code informations
+
+REX is using a **SLAM** algorithm which allows him to locate himself in an environment. Thanks to that, he is recording his position every 50cm so thta he could return where he started whenever you want. 
 
 We've implemented a kind of State Machine so that REX can switch to five mode:
 
@@ -41,6 +44,7 @@ We've implemented a kind of State Machine so that REX can switch to five mode:
 ### Code Explanation
 
 Our robot works with five continuous threads which are:
+
 * **thread_listen_server** : its purpose is to retrieve messages coming from the web <br />
 site to either activate one of the five modes or send data such as the message <br />
 it must send to the engine
@@ -63,6 +67,7 @@ website for live stream
 |Controler     |MEGA2560 board            |
 |Shield        |Wifi Shield               |
 |Sensor        |HC-SR04 ultrasonic sensor |
+|Sensor        |Voltage Converter         |
 
 
 ## Aknowledgements
