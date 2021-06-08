@@ -8,7 +8,7 @@ TOP ANGLE                  |  FRONT                    |    TOP
 
 <a href="https://www.youtube.com/embed/cszdtuoA0Ps
 " target="_blank"><img src="http://img.youtube.com/vi/cszdtuoA0Ps/maxresdefault.jpg" 
-alt="IMAGE ALT TEXT HERE" width="1080" height="512" border="10" /></a>
+alt="IMAGE ALT TEXT HERE" width="640" height="360" border="10" /></a>
 
 
 
