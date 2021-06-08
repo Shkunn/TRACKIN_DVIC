@@ -1,4 +1,3 @@
-
 # REX
 
 New tracking robot following you wherever you go !   
@@ -7,14 +6,6 @@ TOP ANGLE                  |  FRONT                    |    TOP
 :-------------------------:|:-------------------------:|:----------------------------:
 ![image](https://github.com/Shkunn/TRACKIN_DVIC/blob/main/Trackin_DVIC/pics/top_angle_resized.jpg?raw=true)|![image](https://github.com/Shkunn/TRACKIN_DVIC/blob/main/Trackin_DVIC/pics/front_resized.jpg?raw=true)|![image](https://github.com/Shkunn/TRACKIN_DVIC/blob/main/Trackin_DVIC/pics/top_resized.jpg?raw=true)
 
-
-## VIDEO
-
-Here is a little video of our work ! If you want to check it out juste click on teh picture
-
-<a href="https://www.youtube.com/embed/cszdtuoA0Ps
-" target="_blank"><img src="http://img.youtube.com/vi/cszdtuoA0Ps/maxresdefault.jpg" 
-alt="IMAGE ALT TEXT HERE" width="640" height="360" border="10" /></a>
 
 
 ## DESCRIPTION
@@ -37,19 +28,42 @@ For now, to launch our demo you have to run the `Threadin_DVIC/main.py` on your 
 
 **For exemple a message looks like this :** `python3 main.py wlp8s0 0 0.5 2 1 172.21.72.133`
 
+We've implemented a kind of State Machine so that REX can switch to five mode:
+
+|Mode          |Explanation               |
+|:-------------|:-------------------------|
+|Waiting       |stop the motors           |
+|Following     |you need to select the ID on the website and then REX <br /> will follow him with a safety distance of +- 1.30 meter|
+|Home          |REX uses the points he placed during his movements to <br /> return to where he began|
+|Manual Mode   |You can control REX with the arrows on the website |
+|Reset         |Will reset the list of points that REX created to be <br /> able to return HOME |
+
 ### Code Explanation
 
-Notre démo fonctionne sur la base de 5 thread pour pouvoir échanger de la data en temps réel.
+Our robot works with five continuous threads which are:
+* **thread_listen_server** : its purpose is to retrieve messages coming from the web <br />
+site to either activate one of the five modes or send data such as the message <br />
+it must send to the engine
+* **thread_slam** : This thread will listen the camera zed sdk information and <br /> transfert
+data to other thread. It will also send camera flux to server.
+* **thread_compute_command** : This thread will analyse the data from thread_SLAM <br /> and
+thread_listen_sensor and take decision to send to micro controler.
+* **thread_listen_sensor** : REX is also equipped with four Arduino ultrason sensor <br />
+aimed to control if there's obstacles around him ! This thread only receives the data 
+* **thread_stream_image** : send the openCV image with the human detection on it to the <br />
+website for live stream 
 
 ## EQUIPMENT
 
-|Name          |Tech                 |
-|:-------------|:--------------------|
-|Camera        |ZED 2                |
-|Pont H        |Model X motor driver |
-|Brain         |Jetson Nano          |
-|Controler     |MEGA2560 board       |
-|Shield        |Wifi Shield          |
+|Name          |Tech                      |
+|:-------------|:-------------------------|
+|Camera        |ZED 2                     |
+|Pont H        |Model X motor driver      |
+|Brain         |Jetson Nano               |
+|Controler     |MEGA2560 board            |
+|Shield        |Wifi Shield               |
+|Sensor        |HC-SR04 ultrasonic sensor |
+
 
 ## Aknowledgements
 
