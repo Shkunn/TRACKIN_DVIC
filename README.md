@@ -1,4 +1,4 @@
-# TRACKIN DVIC
+# REX
 
 New tracking robot following you wherever you go !   
 
