@@ -33,11 +33,13 @@ courbe             = 0                                                          
 sender             = None                                                               # important stuf to send stream video
 human_selected     = False
 id_selected        = -1
+copy_image_stream  = None
+new_image          = False
 
 """
 Define the IP address and the Port Number
 """
-IP               = "172.21.72.168"
+IP               = "172.21.72.175"
 PORT             = 5000
 listeningAddress = (IP, PORT)
 
@@ -287,7 +289,7 @@ def thread_slam(params):
                     data to other thread. It will also send camera flux to server.
     """
     zed, image, pose, ser, sock, runtime, objects, obj_runtime_param = params
-    global data_position, data_detection, keypoint_to_home, global_state, human_selected, id_selected
+    global data_position, data_detection, keypoint_to_home, global_state, human_selected, id_selected, copy_image_stream, new_image
 
     last_time = time.time()
 
@@ -416,6 +418,9 @@ def thread_slam(params):
 
         # DEBUG SHOWING WINDOWS
         image_draw = cv2.resize(image_draw, (int(352), int(240)))
+
+        new_image = True
+        copy_image_stream = image_draw.copy()
         # sender.send_image(hostname, image_draw)
 
         # cv2.WINDOW_NORMAL
@@ -672,6 +677,22 @@ def thread_listen_sensor(ser):
             data_ultrasensor[3] = float(encodor_data[3])
             # print(data_ultrasensor)
 
+def thread_stream_image(params):
+    zed, image, pose, ser, sock, runtime, objects, obj_runtime_param = params
+    global new_image, copy_image_stream
+
+    hostname = socket.gethostname()
+
+    last_time = time.time()
+
+    while True:
+        print("Thread stream_image")
+        if new_image:
+            print("HZ SLAM STREAM  :", 1/(time.time() - last_time))
+            last_time = time.time()
+            sender.send_image(hostname, copy_image_stream)
+            new_image = False
+
 if __name__ == '__main__':
     params = initialize()
     lock = threading.Lock()
@@ -692,7 +713,12 @@ if __name__ == '__main__':
     thread_4 = threading.Thread(target=thread_listen_sensor, args=(params.ser,))
     thread_4.start()
 
+    # Thread send stream image.
+    thread_5 = threading.Thread(target=thread_stream_image, args=(params,))
+    thread_5.start()
+
     thread_1.join()
     thread_2.join()
     thread_3.join()
     thread_4.join()
+    thread_5.join()

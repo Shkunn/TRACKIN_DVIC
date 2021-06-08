@@ -408,7 +408,7 @@ def thread_slam(params):
             
         # RESET MODE.
         if(global_state == Robot_state.RESET):
-            reset_transform = sl.Transform()
+            # reset_transform = sl.Transform()
             # if(zed.reset_positional_tracking(reset_transform) != sl.ERROR_CODE.SUCCESS):
             #     print("[ERRO] can't reset positional tracking.")
             #     exit(-1)
