@@ -6,6 +6,11 @@ TOP ANGLE                  |  FRONT                    |    TOP
 :-------------------------:|:-------------------------:|:----------------------------:
 ![image](https://github.com/Shkunn/TRACKIN_DVIC/blob/main/Trackin_DVIC/pics/top_angle_resized.jpg?raw=true)|![image](https://github.com/Shkunn/TRACKIN_DVIC/blob/main/Trackin_DVIC/pics/front_resized.jpg?raw=true)|![image](https://github.com/Shkunn/TRACKIN_DVIC/blob/main/Trackin_DVIC/pics/top_resized.jpg?raw=true)
 
+
+<iframe width="560" height="315" src="https://www.youtube.com/embed/cszdtuoA0Ps" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+
+
+
 ## EQUIPMENT
 
 |Name          |Tech                 |
