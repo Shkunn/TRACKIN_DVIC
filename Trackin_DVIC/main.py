@@ -266,7 +266,9 @@ def thread_listen_server(lock, socket):
 
             # FOLLOW MODE
             parse_data = message_server.split('_')
+            print(parse_data)
             if len(parse_data) == 3:
+                print("JE SUIS ICI")
                 # that respect the format of message.
                 # (0, id, "") = desactive humain tracking.
                 # (1, id, "") = active humain tracking.
@@ -274,6 +276,8 @@ def thread_listen_server(lock, socket):
                     human_selected = False
 
                 if parse_data[0] == "1":
+                    print("JE SUIS ICI")
+
                     human_selected = True
                     id_selected = int(parse_data[1])
 
@@ -288,6 +292,9 @@ def thread_slam(params):
     last_time = time.time()
 
     hostname = socket.gethostname()
+
+    object = sl.ObjectData()
+
 
     while True:
         print("HZ SLAM THREAD    :", 1/(time.time() - last_time))
@@ -394,7 +401,7 @@ def thread_slam(params):
                     lineType)
 
                 data_detection[0] = int((humain[0][0]+humain[1][0])/2) - (int(image_draw.shape[1]/2))
-                data_detection[1] = objects.object_list[return_index_with_id(id, objects)].position[0]                   # WARING! Normalement il renvoie tout le temps une valeur valide.
+                data_detection[1] = object.position[0]                                                          # WARING! Normalement il renvoie tout le temps une valeur valide.
                 data_detection[2] = len(objects.object_list)
         else:
             data_detection    = np.zeros(3)  
@@ -408,8 +415,8 @@ def thread_slam(params):
             global_state = Robot_state.WAITING
 
         # DEBUG SHOWING WINDOWS
-        
-        sender.send_image(hostname, image_draw)
+        image_draw = cv2.resize(image_draw, (int(352), int(240)))
+        # sender.send_image(hostname, image_draw)
 
         # cv2.WINDOW_NORMAL
         # cv2.namedWindow("windows",0)
@@ -447,7 +454,7 @@ def thread_compute_command(params):
         np.set_printoptions(suppress = True)
         #print("Data Ultra song : ", data_ultrasensor)
         #print("Data position   : ", data_position)
-        print("Data detection  : ", data_detection)
+        #print("Data detection  : ", data_detection)
         #print("Robot_state     : ", global_state)
         #print("Last_command_mi : ", last_command_micro)
         # print("User command    : ", user_command)
