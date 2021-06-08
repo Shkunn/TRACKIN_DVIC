@@ -20,12 +20,12 @@ alt="IMAGE ALT TEXT HERE" width="640" height="360" border="10" /></a>
 ## DESCRIPTION
 
 For now, to launch our demo you have to run the `Threadin_DVIC/main.py` on your terminal with the following arguments:
-* id_name
-* debug
-* fd
-* model
-* courbe
-* ip_server
+* **id_name**   : id_name is a joke
+* **debug**     : pass debug to 1 if you want more info"
+* **fd**        : fd is the factor to decrease the power of our motors
+* **model**     : you can choose your model : 1 for HUMAN_BODY_FAST | 2 for MULTI_CLASS_BOX_MEDIUM | 3 for MULTI_CLASS_BOX
+* **courbe**    : pass courbe to 1 if you want the robot to curve
+* **ip_server** : ip adress of server
 
 
 ### Code Explanation
