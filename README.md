@@ -2,7 +2,7 @@
 
 New tracking robot following you wherever you go !   
 
-![alt text](Trackin_DVIC/pics/front.jpg?raw=true)
+<img src="https://user-images.githubusercontent.com/36813699/121212462-ac2c8c80-c87d-11eb-93b8-df0aebb97bc0.jpg" width=5% height=5%>
 
 ## EQUIPMENT
 
