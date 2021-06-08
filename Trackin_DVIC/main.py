@@ -39,7 +39,7 @@ new_image          = False
 """
 Define the IP address and the Port Number
 """
-IP               = "172.21.72.175"
+IP               = "172.21.72.168"
 PORT             = 5000
 listeningAddress = (IP, PORT)
 
@@ -460,7 +460,7 @@ def thread_compute_command(params):
         #print("Data Ultra song : ", data_ultrasensor)
         #print("Data position   : ", data_position)
         #print("Data detection  : ", data_detection)
-        #print("Robot_state     : ", global_state)
+        print("Robot_state     : ", global_state)
         #print("Last_command_mi : ", last_command_micro)
         # print("User command    : ", user_command)
         # print("\n")

@@ -37,7 +37,7 @@ id_selected        = -1
 """
 Define the IP address and the Port Number
 """
-IP               = "172.21.72.175"
+IP               = "172.21.72.168"
 PORT             = 5000
 listeningAddress = (IP, PORT)
 
