@@ -1,3 +1,4 @@
+
 # REX
 
 New tracking robot following you wherever you go !   
@@ -16,6 +17,22 @@ Here is a little video of our work ! If you want to check it out juste click on 
 alt="IMAGE ALT TEXT HERE" width="640" height="360" border="10" /></a>
 
 
+## DESCRIPTION
+
+For now, to launch our demo you have to run the `Threadin_DVIC/main.py` on your terminal with the following arguments:
+* id_name
+* debug
+* fd
+* model
+* courbe
+* ip_server
+
+
+### Code Explanation
+
+Notre démo fonctionne sur la base de 5 thread pour pouvoir échanger de la data en temps réel
+
+
 
 ## EQUIPMENT
 
@@ -24,7 +41,8 @@ alt="IMAGE ALT TEXT HERE" width="640" height="360" border="10" /></a>
 |Camera        |ZED 2                |
 |Pont H        |Model X motor driver |
 |Brain         |Jetson Nano          |
-|Controler     |ESP 32               |
+|Controler     |MEGA2560 board       |
+|Shield        |Wifi Shield          |
 
 ## Aknowledgements
 
