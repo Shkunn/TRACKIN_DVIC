@@ -57,6 +57,12 @@ aimed to control if there's obstacles around him ! This thread only receives the
 * **thread_stream_image** : send the openCV image with the human detection on it to the <br />
 website for live stream 
 
+## HOW TO USE THE DEMO 
+
+The demo work with a website that you have to launch ! To see all the detail about this part check this repo : <https://github.com/Polpii/rex_Interface>
+
+
+
 ## EQUIPMENT
 
 |Name          |Tech                      |
