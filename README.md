@@ -46,9 +46,9 @@ We've implemented a kind of State Machine so that REX can switch to five mode:
 Our robot works with five continuous threads which are:
 
 * **thread_listen_server** : its purpose is to retrieve messages coming from the web <br />
-site to either activate one of the five modes or send data such as the message <br />
-it must send to the engine
-* **thread_slam** : This thread will listen the camera zed sdk information and <br /> transfert
+site to either activate one of the five modes or send data such as the messageit must <br />
+send to the engine
+* **thread_slam** : This thread will listen the camera zed sdk information and transfert <br /> 
 data to other thread. It will also send camera flux to server.
 * **thread_compute_command** : This thread will analyse the data from thread_SLAM <br /> and
 thread_listen_sensor and take decision to send to micro controler.
