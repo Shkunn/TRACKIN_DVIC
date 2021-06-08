@@ -2,6 +2,8 @@
 
 New tracking robot following you wherever you go !   
 
+![alt text](Trackin_DVIC/pics/front.jpg?raw=true)
+
 ## EQUIPMENT
 
 |Name          |Tech                 |
