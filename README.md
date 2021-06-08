@@ -59,7 +59,7 @@ website for live stream
 
 ## HOW TO USE THE DEMO 
 
-The demo work with a website that you have to launch ! To see all the detail about this part check this repo : <https://github.com/Polpii/rex_Interface>
+The demo work with a website that you have to launch with two servers ! To see all the detail about this part check this repo : <https://github.com/Polpii/rex_Interface>
 
 
 
