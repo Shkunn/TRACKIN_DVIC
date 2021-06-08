@@ -35,12 +35,11 @@ For now, to launch our demo you have to run the `Threadin_DVIC/main.py` on your 
   * 1 if you want
 * **ip_server** : ip adress from where the whebsite is launched  
 
+**For exemple a message looks like this :** `python3 main.py wlp8s0 0 0.5 2 1 172.21.72.133`
 
 ### Code Explanation
 
-Notre démo fonctionne sur la base de 5 thread pour pouvoir échanger de la data en temps réel
-
-
+Notre démo fonctionne sur la base de 5 thread pour pouvoir échanger de la data en temps réel.
 
 ## EQUIPMENT
 
