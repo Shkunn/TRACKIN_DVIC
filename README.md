@@ -6,8 +6,9 @@ TOP ANGLE                  |  FRONT                    |    TOP
 :-------------------------:|:-------------------------:|:----------------------------:
 ![image](https://github.com/Shkunn/TRACKIN_DVIC/blob/main/Trackin_DVIC/pics/top_angle_resized.jpg?raw=true)|![image](https://github.com/Shkunn/TRACKIN_DVIC/blob/main/Trackin_DVIC/pics/front_resized.jpg?raw=true)|![image](https://github.com/Shkunn/TRACKIN_DVIC/blob/main/Trackin_DVIC/pics/top_resized.jpg?raw=true)
 
-
-<iframe width="560" height="315" src="https://www.youtube.com/embed/cszdtuoA0Ps" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+<a href="https://www.youtube.com/embed/cszdtuoA0Ps
+" target="_blank"><img src="http://img.youtube.com/vi/F2vms-eUrYs/0.jpg" 
+alt="IMAGE ALT TEXT HERE" width="240" height="180" border="10" /></a>
 
 
 
