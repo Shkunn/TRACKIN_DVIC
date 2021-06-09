@@ -19,12 +19,6 @@ def write_read(bf1, FR, bf2, RR, bf3, FL, bf4, RL):
                          2 : Backward
     """
 
-    # arr = np.array([position, distance])
-    # out_arr = np.array_str(arr)
-        
-    # arduino.write(out_arr.encode())
-    # time.sleep(0.05)
-
     message = str(bf1) + "/" + str(FR) + "/" + str(bf2) + "/" + str(RR) +  "/" + str(bf3) + "/" + str(FL) + "/" + str(bf4) + "/" + str(RL) 
 
     arduino.write(message.encode())
@@ -35,16 +29,6 @@ def write_read(bf1, FR, bf2, RR, bf3, FL, bf4, RL):
 if __name__ == "__main__":
 
     counter = 0
-
-    # while True:
-    #     last    = input("Enter a position: ")
-    #     counter = 0
-    #     for i in range(int(last)):
-    #         pos   = '0'
-    #         dist  = '0'
-    #         counter = write_read(pos, dist, counter)
-    #         print(counter)
-    #         time.sleep(0.1)
 
     while True:
 

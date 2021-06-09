@@ -237,64 +237,12 @@ void setup()
     delay(1000);
     stop_Stop();
     delay(1000);
-    
-    /*
-    go_back(SPEED);
-    delay(1000);
-    stop_Stop();
-    delay(1000);
-
-    left_turn(TURN_SPEED);
-    delay(1000);
-    stop_Stop();
-    delay(1000);
-
-    right_turn(TURN_SPEED);
-    delay(1000);
-    stop_Stop();
-    delay(1000);
-
-    right_shift(200,200,200,200); //right shift
-    delay(1000);
-    stop_Stop();
-    delay(1000);
-
-    left_shift(200,200,200,200); //left shift
-    delay(1000);
-    stop_Stop();
-    delay(1000);
-
-    left_shift(200,0,200,0); //left diagonal back
-    delay(1000);
-    stop_Stop();
-    delay(1000);
-
-    right_shift(200,0,200,0); //right diagonal ahead
-    delay(1000);
-    stop_Stop();
-    delay(1000);
-
-    left_shift(0,200,0,200); //left diagonal ahead
-    delay(1000);
-    stop_Stop();
-    delay(1000);
-
-    right_shift(0,200,0,200); //right diagonal back
-    delay(1000);
-    stop_Stop();
-    delay(1000);
-
-    Serial.print("MOTORS             : DONE...");*/
 }
 
 void loop() {
 
-  digitalWrite(LED_BUILTIN, LOW);
-
   if (Serial.available() > 0) 
-  {
-    digitalWrite(LED_BUILTIN, HIGH);
-
+  {    
     // read the incoming data:
     x_str             = Serial.readString();
 
@@ -315,25 +263,6 @@ void loop() {
     ind8              = x_str.indexOf('/', ind7+1 );
     RL_received       = x_str.substring(ind7+1, ind8);
 
-
-    Serial.print("Received : ");
-    Serial.print(bf1);
-    Serial.print(" / ");
-    Serial.print(FR_received);
-    Serial.print(" / ");
-    Serial.print(bf2);
-    Serial.print(" / ");
-    Serial.print(RR_received);
-    Serial.print(" / ");
-    Serial.print(bf3);
-    Serial.print(" / ");
-    Serial.print(FL_received);
-    Serial.print(" / ");
-    Serial.print(bf4);
-    Serial.print(" / ");
-    Serial.print(RL_received);
-
-
     if(FR_received.toFloat() == 700 && RR_received.toFloat() == 700 && FL_received.toFloat() == 700 && RL_received.toFloat() == 700)
     {
         // Serial.print(" RIGHT SHIFT ");
@@ -352,39 +281,38 @@ void loop() {
     // 0: Forward
     // 1: Backward
 
-    else
-    {      
-      if(bf1.toFloat() == 1)
-      {
-        FR_bck(FR_received.toFloat());
-      }
-      else{
-        FR_fwd(FR_received.toFloat());
-      }
+    if(bf1.toFloat() == 1)
+    {
+      // Serial.println("FR BCK");
+      FR_bck(FR_received.toFloat());
+    }
+    else{
+      // Serial.println("FR FWD");
+      FR_fwd(FR_received.toFloat());
+    }
 
-      if(bf2.toFloat() == 1)
-      {
-        RR_bck(RR_received.toFloat());
-      }
-      else{
-        RR_fwd(RR_received.toFloat());
-      }
+    if(bf2.toFloat() == 1)
+    {
+      RR_bck(RR_received.toFloat());
+    }
+    else{
+      RR_fwd(RR_received.toFloat());
+    }
 
-      if(bf3.toFloat() == 1)
-      {
-        FL_bck(FL_received.toFloat());
-      }
-      else{
-        FL_fwd(FL_received.toFloat());
-      }
+    if(bf3.toFloat() == 1)
+    {
+      FL_bck(FL_received.toFloat());
+    }
+    else{
+      FL_fwd(FL_received.toFloat());
+    }
 
-      if(bf4.toFloat() == 1)
-      {
-        RL_bck(RL_received.toFloat());
-      }
-      else{
-        RL_fwd(FR_received.toFloat());
-      }
+    if(bf4.toFloat() == 1)
+    {
+      RL_bck(RL_received.toFloat());
+    }
+    else{
+      RL_fwd(FR_received.toFloat());
     }
   }
 
@@ -427,5 +355,7 @@ void loop() {
   float distance_mm_D = measure_D / 2.0 * SOUND_SPEED;
 
   String message = String(distance_mm)+"/"+String(distance_mm_B)+"/"+String(distance_mm_C)+"/"+String(distance_mm_D)+"/";
-  // Serial.println(message);   
+  // String message = String(0)+"/"+String(0)+"/"+String(0)+"/"+String(0)+"/";
+  Serial.println(message);   
+  Serial.flush();
 }
