@@ -45,7 +45,7 @@ If you want to see REX building a map there is an another code : `main_manual.py
 
 ### Code informations
 
-REX is using a **SLAM** algorithm which allows him to locate himself in an environment. Thanks to that, he is recording his position every 50cm so thta he could return where he started whenever you want. 
+REX is using a **SLAM** algorithm which allows him to locate himself in an environment. Thanks to that, he is recording his position every 50cm so that he could return where he started whenever you want. 
 
 We've implemented a kind of State Machine so that REX can switch to five mode:
 
