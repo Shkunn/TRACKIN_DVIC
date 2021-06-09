@@ -83,7 +83,7 @@ The demo work with a website that you have to launch with two servers ! To see a
 |Jetson Nano   |8                     |
 |Jetson Xavier |30-50                 |
 
-A Jetson nano is now inside REX but a Jetson Xavier would be much better !
+REX uses a Jetson Nano for now but it would be much more appropriate to use a Jetson Xavier or maybe the new Jetson NX !
 
 ## EQUIPMENT
 
