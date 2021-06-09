@@ -96,7 +96,7 @@ REX uses a Jetson Nano for now but it would be much more appropriate to use a Je
 |Shield        |Wifi Shield               |
 |Sensor        |HC-SR04 ultrasonic sensor |
 |Sensor        |Voltage Converter         |
-|Bettery       |14.5V - 5.1A (à vérifier) |
+|Battery       |14.5V - 5.1A (à vérifier) |
 
 
 ## Aknowledgements
