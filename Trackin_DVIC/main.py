@@ -710,7 +710,7 @@ def thread_stream_image(params):
 
     while True:
         print("Thread stream_image")
-        if new_image:
+        if new_image and copy_image_stream is not None:
             if(is_debug_option):
                 print("HZ SLAM STREAM  :", 1/(time.time() - last_time))
             last_time = time.time()
