@@ -33,13 +33,14 @@ REX is using a **SLAM** algorithm which allows him to locate himself in an envir
 
 We've implemented a kind of State Machine so that REX can switch to five mode:
 
-|Mode          |Explanation               |
-|:-------------|:-------------------------|
-|Waiting       |stop the motors           |
-|Following     |you need to select the ID on the website and then REX <br /> will follow him with a safety distance of +- 1.30 meter|
+|Mode          |Explanation                                                                          |
+|:-------------|:------------------------------------------------------------------------------------|
+|Waiting       |stop the motors                                                                      |
+|Following     |you need to select the ID on the website and then REX <br /> will follow him with a 
+                safety distance of +- 1.30 meter                                                     |
 |Home          |REX uses the points he placed during his movements to <br /> return to where he began|
-|Manual Mode   |You can control REX with the arrows on the website |
-|Reset         |Will reset the list of points that REX created to be <br /> able to return HOME |
+|Manual Mode   |You can control REX with the arrows on the website                                   |
+|Reset         |Will reset the list of points that REX created to be <br /> able to return HOME      |
 
 ### Code Explanation
 
