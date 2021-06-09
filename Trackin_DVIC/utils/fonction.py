@@ -1,11 +1,11 @@
-from typing import NamedTuple
 from serial import Serial
+from typing import NamedTuple
 
-import math as m
-import pyzed.sl as sl
-import numpy as np
-import socket
 import fcntl
+import math as m
+import numpy as np
+import pyzed.sl as sl
+import socket
 import struct
 
 
@@ -52,12 +52,12 @@ def get_ip_address(ifname):
 def get_id_nearest_humain(objects):
     '''
     DESCRIPTION: This function will take all object detect
-            and send back the index of the nearest humain.
+                 and send back the index of the nearest humain.
     INPUT      :
-    *objects   > list of objects from zed sdl. 
+        *objects    > list of objects from zed sdl. 
     OUTPUT     :
-    *valid     > if list is bigger than 0.
-    *index_list> position of nearest humain in objects list.
+        *valid      > if list is bigger than 0.
+        *index_list > position of nearest humain in objects list.
     '''
 
     if len(objects.object_list) == 0:
@@ -77,8 +77,8 @@ def get_id_nearest_humain(objects):
 def check_ultrason_init(ser):
     '''
         DESCRIPTION: This function will run at the begining in
-                the initialisation process and will check if 
-                the ultrason sensor connection is working.
+                     the initialisation process and will check if 
+                     the ultrason sensor connection is working.
     ''' 
 
     data_ultrasensor = np.zeros(4)
@@ -101,16 +101,16 @@ def compute_distance_between_points(point_A, point_B):
 def check_if_new_keypoint(keypoints, current_position, threshold, debug):
     """
         DESCRIPTION: This function will check current position and
-                if mouvement since last keypoint is bigger than a
-                threshold, we'll add new keypoint.
+                     if mouvement since last keypoint is bigger than a
+                     threshold, we'll add new keypoint.
         INPUT:
-        *keypoints        > numpy(numpy(x, y, yaw)) it's all keypoints.
-        *current_position > numpy(x, y, yaw).
-        *threshold        > double in meters.
-        *debug            > bool to show keypoints list when we add new.
+            *keypoints        > numpy(numpy(x, y, yaw)) it's all keypoints.
+            *current_position > numpy(x, y, yaw).
+            *threshold        > double in meters.
+            *debug            > bool to show keypoints list when we add new.
     """
 
-    # compute distance since last keypoints.
+    # Compute distance since last keypoints.
     distance = compute_distance_between_points(current_position, keypoints[-1])
 
     if debug:
@@ -128,7 +128,7 @@ def check_if_new_keypoint(keypoints, current_position, threshold, debug):
 def calcul_vector(current_position, keypoint):
     """
         DESCRIPTION: calcul angle between current pose and keypoint in 
-                global reference.
+                     global reference.
         OUTPUT:
             * current_position = (x, y) index of current robot position.
             * testouille       = (x, y)
@@ -150,18 +150,18 @@ def check_if_we_reach_keypoint(point_A, point_B, threshold):
     """
         DESCRIPTION: check if we reach keypoint.
         INPUT:
-        * point_A    > 2 dimensions vector.
-        * point_B    > 1 dimension vector.
+            * point_A    > 2 dimensions vector.
+            * point_B    > 1 dimension vector.
     """
     return compute_distance_between_points(point_A, point_B) < threshold
 
 def check_if_search_id_is_present(id, objects):
     """
         DESCRIPTION: check if the id select by user interface is 
-            still observable on screen.
+                     still observable on screen.
         INPUT:
-        * id         > id select by user.
-        * objects    > list of observable objects.
+            * id         > id select by user.
+            * objects    > list of observable objects.
     """
     for obj in objects.object_list:
         if id == obj.id:
@@ -173,8 +173,8 @@ def return_index_with_id(id, objects):
         DESCRIPTION: return the index in list objects with object
             with this id.
         INPUT:
-        * id         > id select by user.
-        * objects    > list of observable objects.
+            * id         > id select by user.
+            * objects    > list of observable objects.
     """
     index = 0
     for obj in objects.object_list:

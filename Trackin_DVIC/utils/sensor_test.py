@@ -1,8 +1,4 @@
-import argparse
-import numpy
-import time
 import serial 
-import struct
 import numpy as np
 
 data_ultrasensor = np.zeros(4)
@@ -18,4 +14,3 @@ while True:
         data_ultrasensor[1] = float(encodor_data[1])
         data_ultrasensor[2] = float(encodor_data[2])
         data_ultrasensor[3] = float(encodor_data[3])
-        #print(data_ultrasensor)

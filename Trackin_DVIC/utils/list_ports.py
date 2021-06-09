@@ -7,7 +7,7 @@
 #
 # SPDX-License-Identifier:    BSD-3-Clause
 
-"""\
+"""
 This module will provide a function called comports that returns an
 iterable (generator or list) that will enumerate available com ports. Note that
 on some systems non-existent ports may be listed.
