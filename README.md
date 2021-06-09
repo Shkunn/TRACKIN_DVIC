@@ -20,8 +20,7 @@ $ pip3 install imutils
 $ pip3 install sockets
 $ pip3 install pyserial
 ```
-We are using the ZED2 camera with REX. To use it you'll need to download it's SDK on their website <https://www.stereolabs.com/developers/release/>.
-Then you juste avec to `chmod +x ZED_your_file_name` and run it like this `./ZED_your_file_name`
+We are using the ZED2 camera with REX. To use it you'll need to download it's SDK on their website <https://www.stereolabs.com/developers/release/>. <br />Then you just avec to `chmod +x ZED_your_file_name` and run it like this `./ZED_your_file_name`
 
 ## DESCRIPTION
 
