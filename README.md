@@ -75,6 +75,9 @@ website for live stream
 
 ## HOW TO USE THE DEMO 
 
+The micro-controller is an essential part of our robot and it must of course be connected! As for the internal code you can find it here: `Trackin_DVIC/controler_code/motor_receive_data.cpp`.
+You just have to download the Arduino IDE and select these parameters 
+
 The demo work with a website alon with two servers ! To see all the detail about this part check this repo : <https://github.com/Polpii/rex_Interface>
 
 
