@@ -167,7 +167,6 @@ def send_command_v2(current_command, new_command, ser):
         message_string += str(new_command[6]) + "/"
         message_string += str(new_command[7]) 
         ser.write(message_string.encode())
-        #print("MESSAGE : ", message_string)
         last_command    = new_command
 
     return last_command
@@ -228,11 +227,10 @@ def thread_listen_server(lock, socket):
         INPUT        :
             * lock       = Type(Threading) locking the moment when the mode is changing so that allt he code can have the same.
             * socket     = Type(Socket)    socket connection to receive the data from the website.
-
     """
     global message_server, global_state, user_command, human_selected, id_selected
     
-    # get all order available for the robot.
+    # Get all order available for the robot.
     dictionary_order = np.array([
                     ["waiting"        ],
                     ["follow"         ],
@@ -251,8 +249,6 @@ def thread_listen_server(lock, socket):
                     ["9"              ],
                     ["10"             ]
     ])
-
-    # print("thread_listen_server WHILE")
 
     while(True):
         data, addr = socket.recvfrom(1024)
