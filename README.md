@@ -26,7 +26,6 @@ We are using the ZED2 camera with REX. To use it you'll need to download it's SD
 
 For now, to launch our demo you have to run the `Threadin_DVIC/main.py` on your terminal with the following arguments:
 
-* **id_name**   : id_name is a joke
 * **debug**     : if you want more information during processing 
   * 0 if you don't
   * 1 if you do
@@ -40,7 +39,7 @@ For now, to launch our demo you have to run the `Threadin_DVIC/main.py` on your 
   * 1 if you want
 * **ip_server** : ip adress from where the whebsite is launched  
 
-**For exemple a message looks like this :** `python3 main.py wlp8s0 0 0.5 2 1 172.21.72.133`
+**For exemple a message looks like this :** `python3 main.py 0 0.5 2 1 172.21.72.133`
 ### Code informations
 
 REX is using a **SLAM** algorithm which allows him to locate himself in an environment. Thanks to that, he is recording his position every 50cm so thta he could return where he started whenever you want. 
