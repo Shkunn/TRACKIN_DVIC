@@ -32,6 +32,7 @@ For now, to launch our demo you have to run the `Threadin_DVIC/main.py` on your 
 REX is using a **SLAM** algorithm which allows him to locate himself in an environment. Thanks to that, he is recording his position every 50cm so thta he could return where he started whenever you want. 
 
 We've implemented a kind of State Machine so that REX can switch to five mode:
+
 |Mode          |Explanation                                                                                                         |
 |:-------------|:-------------------------------------------------------------------------------------------------------------------|
 |Waiting       |stop the motors                                                                                                     |
@@ -61,6 +62,14 @@ website for live stream
 The demo work with a website that you have to launch with two servers ! To see all the detail about this part check this repo : <https://github.com/Polpii/rex_Interface>
 
 
+## PERFORMANCE
+
+|TECH          |FPS                   |
+|:-------------|:---------------------|
+|Jetson Nano   |8                     |
+|Jetson Xavier |30-50                 |
+
+A Jetson nano is now inside REX but a Jetson Xavier would be much better !
 
 ## EQUIPMENT
 
