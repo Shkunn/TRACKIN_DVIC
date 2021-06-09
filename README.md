@@ -40,6 +40,9 @@ For now, to launch our demo you have to run the `Threadin_DVIC/main.py` on your 
 * **ip_server** : ip adress from where the whebsite is launched  
 
 **For exemple a message looks like this :** `python3 main.py 0 0.5 2 1 172.21.72.133`
+
+If you want to see REX building a map there is an another code : `main_manual.py`. This code allows you to control REX via the website and see him building a map in real time.
+
 ### Code informations
 
 REX is using a **SLAM** algorithm which allows him to locate himself in an environment. Thanks to that, he is recording his position every 50cm so thta he could return where he started whenever you want. 
