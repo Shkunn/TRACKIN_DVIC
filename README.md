@@ -82,6 +82,7 @@ A Jetson nano is now inside REX but a Jetson Xavier would be much better !
 |Shield        |Wifi Shield               |
 |Sensor        |HC-SR04 ultrasonic sensor |
 |Sensor        |Voltage Converter         |
+|Bettery       |14.5V - 5.1A (à vérifier) |
 
 
 ## Aknowledgements
