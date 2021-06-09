@@ -32,15 +32,13 @@ For now, to launch our demo you have to run the `Threadin_DVIC/main.py` on your 
 REX is using a **SLAM** algorithm which allows him to locate himself in an environment. Thanks to that, he is recording his position every 50cm so thta he could return where he started whenever you want. 
 
 We've implemented a kind of State Machine so that REX can switch to five mode:
-
-|Mode          |Explanation                                                                          |
-|:-------------|:------------------------------------------------------------------------------------|
-|Waiting       |stop the motors                                                                      |
-|Following     |you need to select the ID on the website and then REX <br /> will follow him with a 
-                safety distance of +- 1.30 meter                                                     |
-|Home          |REX uses the points he placed during his movements to <br /> return to where he began|
-|Manual Mode   |You can control REX with the arrows on the website                                   |
-|Reset         |Will reset the list of points that REX created to be <br /> able to return HOME      |
+|Mode          |Explanation                                                                                                         |
+|:-------------|:-------------------------------------------------------------------------------------------------------------------|
+|Waiting       |stop the motors                                                                                                     |
+|Following     |you need to select the ID on the website and then REX <br /> will follow him with a safety distance of +- 1.30 meter|
+|Home          |REX uses the points he placed during his movements to <br /> return to where he began                               |
+|Manual Mode   |You can control REX with the arrows on the website                                                                  |
+|Reset         |Will reset the list of points that REX created to be <br /> able to return HOME                                     |
 
 ### Code Explanation
 
