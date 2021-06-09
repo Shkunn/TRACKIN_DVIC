@@ -6,7 +6,22 @@ TOP ANGLE                  |  FRONT                    |    TOP
 :-------------------------:|:-------------------------:|:----------------------------:
 ![image](https://github.com/Shkunn/TRACKIN_DVIC/blob/main/Trackin_DVIC/pics/top_angle_resized.jpg?raw=true)|![image](https://github.com/Shkunn/TRACKIN_DVIC/blob/main/Trackin_DVIC/pics/front_resized.jpg?raw=true)|![image](https://github.com/Shkunn/TRACKIN_DVIC/blob/main/Trackin_DVIC/pics/top_resized.jpg?raw=true)
 
+## PREREQUISITES
 
+## PREREQUISITES
+
+To be able to launch every thread you'll have to install several librairies:
+```
+$ sudo apt-get install python3-opencv
+$ sudo apt-get install python3-numpy
+$ pip3 install threaded
+$ pip3 install imagezmq
+$ pip3 install imutils
+$ pip3 install sockets
+$ pip3 install pyserial
+```
+We are using the ZED2 camera with REX. To use it you'll need to download it's SDK on their website <https://www.stereolabs.com/developers/release/>.
+Then you juste avec to `chmod +x ZED_your_file_name` and run it like this `./ZED_your_file_name`
 
 ## DESCRIPTION
 
