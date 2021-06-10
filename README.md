@@ -49,8 +49,8 @@ Some steps have to be done before you can do it:
 * you'll have to run ```gvncviewer``` on your computer which can be installed by following this steps : [GVNCVIEWER INSTALLATION](https://developer.nvidia.com/embedded/learn/tutorials/vnc-setup?fbclid=IwAR0AVbtkl6mVNRhq0hVY7IeQ7xALYI8xBSaHGVX09EZoB-32_hM5SkkZ1GE)
 * once installed you can launch this file ```python3 /usr/local/zed/samples/spatial mapping/advanced point cloud mapping/cpp/build/launch_ZED_mapping.py```
 * For now, you can send him message via the file ```sendmsg.py``` in the same folder like so:
- * ```sendmsg.py 0``` to launch the mapping
- * ```sendmsg.py 1``` to stop the mapping
+  * ```sendmsg.py 0``` to launch the mapping
+  * ```sendmsg.py 1``` to stop the mapping
 
 
 ### Code informations
