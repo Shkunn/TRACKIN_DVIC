@@ -45,7 +45,7 @@ If you want to see REX building a map there is an another code : `main_manual.py
 
 **RUN `main_manual.py`**
 
-To see REX building a map in realtime you'll have to run ```gvncviewer``` which can be installed by following this steps : [GVNCVIEWER INSTALLATION]<https://developer.nvidia.com/embedded/learn/tutorials/vnc-setup?fbclid=IwAR0AVbtkl6mVNRhq0hVY7IeQ7xALYI8xBSaHGVX09EZoB-32_hM5SkkZ1GE>
+To see REX building a map in realtime you'll have to run ```gvncviewer``` which can be installed by following this steps : [GVNCVIEWER INSTALLATION](https://developer.nvidia.com/embedded/learn/tutorials/vnc-setup?fbclid=IwAR0AVbtkl6mVNRhq0hVY7IeQ7xALYI8xBSaHGVX09EZoB-32_hM5SkkZ1GE)
 
 
 ### Code informations
