@@ -41,11 +41,16 @@ For now, to launch our demo you have to run the `Threadin_DVIC/main.py` on your 
 
 **For exemple a message looks like this :** `python3 main.py 0 0.5 2 1 172.21.72.133`
 
-If you want to see REX building a map there is an another code : `main_manual.py`. This code allows you to control REX via the website and see him building a map in real time. Run it with the same args that you used for `main.py`.
-
 **RUN `main_manual.py`**
 
-To see REX building a map in realtime you'll have to run ```gvncviewer``` which can be installed by following this steps : [GVNCVIEWER INSTALLATION](https://developer.nvidia.com/embedded/learn/tutorials/vnc-setup?fbclid=IwAR0AVbtkl6mVNRhq0hVY7IeQ7xALYI8xBSaHGVX09EZoB-32_hM5SkkZ1GE)
+If you want to see REX building a map there is an another code : `main_manual.py`. This code allows you to control REX via the website and see him building a map in real time. Run it with the same args that you used for `main.py`.
+
+Some steps have to be done before you can do it:
+* you'll have to run ```gvncviewer``` on your computer which can be installed by following this steps : [GVNCVIEWER INSTALLATION](https://developer.nvidia.com/embedded/learn/tutorials/vnc-setup?fbclid=IwAR0AVbtkl6mVNRhq0hVY7IeQ7xALYI8xBSaHGVX09EZoB-32_hM5SkkZ1GE)
+* once installed you can launch this file ```python3 /usr/local/zed/samples/spatial mapping/advanced point cloud mapping/cpp/build/launch_ZED_mapping.py```
+* For now, you can send him message via the file ```sendmsg.py``` in the same folder like so:
+ * ```sendmsg.py 0``` to launch the mapping
+ * ```sendmsg.py 1``` to stop the mapping
 
 
 ### Code informations
