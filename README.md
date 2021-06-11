@@ -90,7 +90,8 @@ You just have to download the Arduino IDE and select these parameters:
 * Type de Carte : Arduino MEGA
 * Processor : ATmega 2560
 
-The demo work with a website alon with two servers ! To see all the detail about this part check this repo : <https://github.com/Polpii/rex_Interface>
+All the actions you have to do is explained in the Interface Github !
+To see all the detail about this part check this repo : <https://github.com/Polpii/rex_Interface>
 
 
 ## PERFORMANCE
