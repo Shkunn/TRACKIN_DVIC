@@ -91,7 +91,7 @@ You just have to download the Arduino IDE and select these parameters:
 * Processor : ATmega 2560
 
 All the actions you have to do is explained in the Interface Github !
-To see all the detail about this part check this repo : <https://github.com/Polpii/rex_Interface>
+To see all the detail about this part check this repo : [REX INTERFACE](https://github.com/Polpii/rex_Interface)
 
 
 ## PERFORMANCE
