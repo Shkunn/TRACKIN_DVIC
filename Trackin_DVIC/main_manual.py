@@ -308,7 +308,7 @@ def thread_compute_command(params):
             INFO     : We will see if we have access to all data in this thread.
         """
         # print(f"HZ thread command : {1/(time.time()-last_time)}")
-        print("GLOBAL STATE: ",global_state)
+        # print("GLOBAL STATE: ",global_state)
         last_time = time.time()
         np.set_printoptions(suppress = True)
         time.sleep(0.001)
