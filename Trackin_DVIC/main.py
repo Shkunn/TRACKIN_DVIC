@@ -719,6 +719,17 @@ def thread_stream_image(params):
 #endregion
 
 if __name__ == '__main__':
+
+    IP   = "172.21.72.168"
+    PORT = 8080
+
+    msg = "MAIN"
+    cc = msg.encode()
+
+    with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as opened_socket:
+        opened_socket.setblocking(0)
+        opened_socket.sendto(cc, (IP, PORT))
+
     params = initialize()
     lock = threading.Lock()
 
