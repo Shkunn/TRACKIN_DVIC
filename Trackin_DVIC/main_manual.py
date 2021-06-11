@@ -8,10 +8,13 @@ import imagezmq
 import math as m
 import numpy as np
 import os
+import psutil
 import pyzed.sl as sl
 import socket
+import subprocess
 import threading
 import time
+
 
 """
     INFO    : This is all Global variable.
@@ -178,6 +181,11 @@ def manual_mode(user_command, last_command_micro, ser):
 
     return send_command_v2(last_command_micro, command_micro, ser)
 
+def kill(proc_id):
+    process = psutil.Process(proc_id)
+    for proc in process.children(recursive=True):
+        proc.kill()
+    process.kill()
 #endregion
 
 #region ALL THREAD FUNCTION.
@@ -245,9 +253,8 @@ def thread_listen_server(lock, socket):
 
             # FOLLOW MODE
             parse_data = message_server.split('_')
-            print(parse_data)
+            # print(parse_data)
             if len(parse_data) == 3:
-                print("JE SUIS ICI")
                 # that respect the format of message.
                 # (0, id, "") = desactive humain tracking.
                 # (1, id, "") = active humain tracking.
@@ -255,10 +262,15 @@ def thread_listen_server(lock, socket):
                     human_selected = False
 
                 if parse_data[0] == "1":
-                    print("JE SUIS ICI")
-
                     human_selected = True
                     id_selected = int(parse_data[1])
+
+            # MAP BUILDER
+            if message_server == "run":
+                global_state = "RUN"
+
+            if message_server == "stop":
+                global_state = "STOP"
 
 def thread_slam(params):
     """
@@ -271,7 +283,7 @@ def thread_slam(params):
     last_time = time.time()
 
     while True:
-        print("HZ SLAM THREAD    :", 1/(time.time() - last_time))
+        # print("HZ SLAM THREAD    :", 1/(time.time() - last_time))
         last_time = time.time()
             
         # RESET MODE.
@@ -295,7 +307,7 @@ def thread_compute_command(params):
         """
             INFO     : We will see if we have access to all data in this thread.
         """
-        print(f"HZ thread command : {1/(time.time()-last_time)}")
+        # print(f"HZ thread command : {1/(time.time()-last_time)}")
         last_time = time.time()
         np.set_printoptions(suppress = True)
         time.sleep(0.001)
@@ -333,6 +345,21 @@ def thread_listen_sensor(ser):
             data_ultrasensor[1] = float(encodor_data[1])
             data_ultrasensor[2] = float(encodor_data[2])
             data_ultrasensor[3] = float(encodor_data[3])
+
+def thread_launch_ZED():
+    global global_state
+
+    while True:
+        if global_state == "RUN":
+            proc = subprocess.Popen(["./ZED_Point_Cloud_Mapping"], shell=True)
+            print("ZED RECEIVE: ", global_state)
+            global_state = None
+            
+        if global_state == "STOP":
+            kill(proc.pid)
+            print("ZED RECEIVE: ", global_state)
+            global_state = None
+
 #endregion
 
 if __name__ == '__main__':
@@ -367,7 +394,12 @@ if __name__ == '__main__':
     thread_4 = threading.Thread(target=thread_listen_sensor, args=(params.ser,))
     thread_4.start()
 
+    # Thread listen server.
+    thread_5 = threading.Thread(target=thread_launch_ZED, args=())
+    thread_5.start()
+
     thread_1.join()
     thread_2.join()
     thread_3.join()
     thread_4.join()
+    thread_5.join()
