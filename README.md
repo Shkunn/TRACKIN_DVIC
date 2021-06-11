@@ -119,4 +119,4 @@ REX uses a Jetson Nano for now but it would be much more appropriate to use a Je
 
 ## Aknowledgements
 
-Used OSOYOO robot : https://osoyoo.com/2019/11/08/omni-direction-mecanum-wheel-robotic-kit-v1/
+Used OSOYOO robot : [LINK](https://osoyoo.com/2019/11/08/omni-direction-mecanum-wheel-robotic-kit-v1/)
