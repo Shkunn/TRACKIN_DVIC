@@ -344,7 +344,7 @@ def thread_slam(params):
                 for obj in objects.object_list:
                     humain        = obj.bounding_box_2d
                     id            = obj.id
-                        
+                        false
                     point_A       = (int(humain[0][0]), int(humain[0][1]))
                     point_B       = (int(humain[1][0]), int(humain[1][1]))
                     point_C       = (int(humain[2][0]), int(humain[2][1]))
@@ -516,35 +516,36 @@ def thread_compute_command(params):
                         last_command_micro = send_command_v2(last_command_micro, command_micro, ser)
 
                         #region ULTRASON SENSOR
-                        # if(data_ultrasensor[0] > 300 or data_ultrasensor[0] == 0):
-                        #     new_command = True
-                        #     command_micro = np.array([ 0, 250*fd, 0, 250*fd, 0, 250*fd, 0, 250*fd])
-                        #     last_command_micro = send_command_v2(last_command_micro, command_micro, ser)
+                        if(data_ultrasensor[0] > 300 or data_ultrasensor[0] == 0):
+                            new_command = True
+                            command_micro = np.array([ 0, 250*fd, 0, 250*fd, 0, 250*fd, 0, 250*fd])
+                            last_command_micro = send_command_v2(last_command_micro, command_micro, ser)
 
-                        # else:
-                        #     # can't go forward
-                        #     if((data_ultrasensor[1] == 0) and (data_ultrasensor[2] == 0) and not new_command):
-                        #         # if both are free, go left.
-                        #         new_command = True
-                        #         command_micro = np.array([ 0,    600, 0,    600, 0,    600, 0,    600])
-                        #         last_command_micro = send_command_v2(last_command_micro, command_micro, ser)
+                        else:
+                            new_command = False;
+                            # can't go forward
+                            if(data_ultrasensor[1] > 300 or data_ultrasensor[1] == 0) and (data_ultrasensor[2] > 300 or data_ultrasensor[2] == 0) and not new_command:
+                                # if both are free, go left.
+                                new_command = True
+                                command_micro = np.array([ 0,    600, 0,    600, 0,    600, 0,    600])
+                                last_command_micro = send_command_v2(last_command_micro, command_micro, ser)
+                                
+                            if(data_ultrasensor[1] > data_ultrasensor[2] and data_ultrasensor[2] != 0 and not new_command):
+                                # go left
+                                new_command = True
+                                command_micro = np.array([ 0,    600, 0,    600, 0,    600, 0,    600])
+                                last_command_micro = send_command_v2(last_command_micro, command_micro, ser)
 
-                        #     if(data_ultrasensor[1] > data_ultrasensor[2] and data_ultrasensor[2] != 0 and not new_command):
-                        #         # go left
-                        #         new_command = True
-                        #         command_micro = np.array([ 0,    600, 0,    600, 0,    600, 0,    600])
-                        #         last_command_micro = send_command_v2(last_command_micro, command_micro, ser)
+                            if(data_ultrasensor[1] < data_ultrasensor[2] and data_ultrasensor[1] != 0 and not new_command):
+                                # go right
+                                new_command = True
+                                command_micro = np.array([ 0,    700, 0,    700, 0,    700, 0,    700])
+                                last_command_micro = send_command_v2(last_command_micro, command_micro, ser)
 
-                        #     if(data_ultrasensor[1] < data_ultrasensor[2] and data_ultrasensor[1] != 0 and not new_command):
-                        #         # go right
-                        #         new_command = True
-                        #         command_micro = np.array([ 0,    700, 0,    700, 0,    700, 0,    700])
-                        #         last_command_micro = send_command_v2(last_command_micro, command_micro, ser)
-
-                        #     if((data_ultrasensor[1] < 300) and (data_ultrasensor[2] < 300) \
-                        #         and (data_ultrasensor[1] != 0) and (data_ultrasensor[2] != 0) and not new_command):
-                        #         # block so stop
-                        #         new_command = False
+                            if((data_ultrasensor[1] < 300) and (data_ultrasensor[2] < 300) \
+                                and (data_ultrasensor[1] != 0) and (data_ultrasensor[2] != 0)):
+                                # block so stop
+                                new_command = False
                         #endregion
 
                     if data_detection[1] < (param_threshold_distance-param_plage_distance) and not new_command:
