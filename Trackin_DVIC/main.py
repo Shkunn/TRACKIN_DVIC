@@ -344,7 +344,6 @@ def thread_slam(params):
                 for obj in objects.object_list:
                     humain        = obj.bounding_box_2d
                     id            = obj.id
-                        false
                     point_A       = (int(humain[0][0]), int(humain[0][1]))
                     point_B       = (int(humain[1][0]), int(humain[1][1]))
                     point_C       = (int(humain[2][0]), int(humain[2][1]))
