@@ -37,12 +37,6 @@ id_selected        = -1
 copy_image_stream  = None
 new_image          = False
 
-"""
-Define the IP address and the Port Number
-"""
-IP               = "172.21.72.168"                      # This IP use to receive messsage so you have to enter the JETSON IP
-PORT             = 5000
-listeningAddress = (IP, PORT)
 
 #region ALL GENERAL FUNCTION.
 
@@ -59,6 +53,7 @@ def initialize():
     parser.add_argument("model", help="you can choose your model : 1 for HUMAN_BODY_FAST | 2 for MULTI_CLASS_BOX_MEDIUM | 3 for MULTI_CLASS_BOX")  
     parser.add_argument("courbe", help="pass courbe to 1 if you want the robot to curve")                                                                          # you can choose your model.
     parser.add_argument("ip_server", help="ip adress of server")
+    parser.add_argument("ip_brain", help="ip adress of JETSON")
     args = parser.parse_args()
 
     # DEBUG OPTION.
@@ -73,6 +68,11 @@ def initialize():
 
     # STREAM VIDEO INIT.
     sender = imagezmq.ImageSender(connect_to=f"tcp://{args.ip_server}:5555")
+
+    # IP OPTION.
+    IP     = args.ip_brain                     # This IP use to receive messsage so you have to enter the JETSON IP
+    PORT   = 5000
+    listeningAddress = (IP, PORT)
     
     # ZED CAMERA CONFIGURATION.        
     zed                           = None
