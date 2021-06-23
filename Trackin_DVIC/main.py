@@ -14,6 +14,14 @@ import socket
 import threading
 import time
 
+import firebase_admin
+from firebase_admin import credentials
+from firebase_admin import db   
+import json
+
+import socketio
+from flask import Flask, render_template
+
 """
     INFO    : This is all Global variable.
 """
@@ -34,6 +42,19 @@ human_selected     = False
 id_selected        = -1
 copy_image_stream  = None
 new_image          = False
+data_msg           = {}
+
+
+async_mode         = None
+sio                = socketio.Server(async_mode='threading', cors_allowed_origins='*')
+app                = Flask(__name__)
+
+app.wsgi_app       = socketio.WSGIApp(sio, app.wsgi_app)
+
+cred               = credentials.Certificate('FIREBASE/firebase_SDK.json')
+firebase_admin.initialize_app(cred, {
+    'databaseURL': 'https://rexinterface-default-rtdb.europe-west1.firebasedatabase.app/'
+})
 
 
 #region ALL GENERAL FUNCTION.
@@ -89,11 +110,47 @@ def initialize():
         print("[ERR0] Can't enable tracking of camera zed 2.")
         exit(-1)
 
+    # ZED CALIBRATION.
+    zed.get_camera_information().camera_configuration.calibration_parameters.left_cam
+
     print(f"[INIT] - open camera zed 2.")
     # ZED OBJECT CONFIGURATION.
     image   = sl.Mat()                                                              # Left image from camera.
-    pose    = sl.Pose()  
+    pose    = sl.Pose()                                                             # Pose object
     runtime = sl.RuntimeParameters()
+    pymesh = sl.Mesh()                                                              # Current incremental mesh.
+
+   
+   
+    # TRACKING PARAMETERS.
+    tracking_parameters = sl.PositionalTrackingParameters()
+    tracking_parameters.enable_area_memory = True
+    zed.enable_positional_tracking(tracking_parameters)
+
+
+    
+    
+    # SPATIAL MAPPING PARAMETERS.
+    spatial_mapping_parameters = sl.SpatialMappingParameters(
+        #resolution = sl.MAPPING_RESOLUTION.MEDIUM,
+        #mapping_range = sl.MAPPING_RANGE.LONG,
+        map_type = sl.SPATIAL_MAP_TYPE.MESH,
+        use_chunk_only = True,
+        max_memory_usage = 6000
+    )
+
+    mapping_parameters = sl.SpatialMappingParameters(resolution=sl.MAPPING_RESOLUTION.HIGH, use_chunk_only = True, mapping_range=sl.MAPPING_RANGE.MEDIUM, max_memory_usage = 4096*8)
+    mapping_parameters.range_meter = mapping_parameters.get_range_preset(sl.MAPPING_RANGE.LONG)
+    mapping_parameters.resolution_meter = 0.02
+
+    zed.enable_spatial_mapping(mapping_parameters)
+
+
+    # CLEAR FOR SAFETY?
+    pymesh.clear()
+    zed.enable_spatial_mapping()
+
+
 
     # ZED OBJECT DETECTION CONFIGURATION.
     obj_param                     = sl.ObjectDetectionParameters()
@@ -142,7 +199,7 @@ def initialize():
     global_state = Robot_state.WAITING
 
     # SEND PARAM.
-    params = ParamsInit(zed, image, pose, ser, sock, runtime, objects, obj_runtime_param)
+    params = ParamsInit(zed, image, pose, ser, sock, runtime, objects, obj_runtime_param, pymesh)
     return params
 
 def send_command_v2(current_command, new_command, ser):
@@ -216,6 +273,17 @@ def manual_mode(user_command, last_command_micro, ser):
         command_micro = np.array([ 1, 250*fd, 0,   0*fd, 0,   0*fd, 1, 250*fd])
 
     return send_command_v2(last_command_micro, command_micro, ser)
+
+@app.route('/')
+def index():
+    return render_template('latency.html')
+
+@sio.event
+def ping_from_client(sid):
+    global data_msg
+
+    print(data_msg)
+    sio.emit('pong_from_server', data_msg, room=sid)
 
 #endregion
 
@@ -301,11 +369,14 @@ def thread_slam(params):
         DESCRIPTION  : This thread will listen the camera zed sdk information and transfert
                        data to other thread. It will also send camera flux to server.
     """
-    zed, image, pose, ser, sock, runtime, objects, obj_runtime_param = params
-    global data_position, data_detection, keypoint_to_home, global_state, human_selected, id_selected, copy_image_stream, new_image, lock
+    zed, image, pose, ser, sock, runtime, objects, obj_runtime_param, pymesh = params
+    global data_position, data_detection, keypoint_to_home, global_state, human_selected, id_selected, copy_image_stream, new_image, lock, data_msg
 
     # Init time to get the FPS 
     last_time = time.time()
+
+    human_dict               = {}
+    human_dict["Human_pose"] = {}
 
     # Init object for the ZED camera
     object    = sl.ObjectData()
@@ -349,6 +420,16 @@ def thread_slam(params):
                     point_C       = (int(humain[2][0]), int(humain[2][1]))
                     point_D       = (int(humain[3][0]), int(humain[3][1]))
                     color         = None
+
+                    human_poseA = np.asarray([point_A])
+                    human_poseC = np.asarray([point_C])
+
+                    human_pose = np.append(human_poseA, human_poseC)
+
+                    mat_tolist = human_pose.tolist()
+
+                    human_dict["Human_pose"][str(id)] = mat_tolist
+
                     if index == i:
                         color     = (   0,   0, 255)
                         data_detection[0] = int((humain[0][0]+humain[1][0])/2) - (int(image_draw.shape[1]/2))
@@ -357,62 +438,46 @@ def thread_slam(params):
                     else:
                         color     = (   0, 255,   0)
                     
-                    image_draw    = cv2.line(image_draw, point_A, point_B, color, 5)
-                    image_draw    = cv2.line(image_draw, point_B, point_C, color, 5)
-                    image_draw    = cv2.line(image_draw, point_C, point_D, color, 5)
-                    image_draw    = cv2.line(image_draw, point_D, point_A, color, 5)
-                    
-                    font          = cv2.FONT_HERSHEY_SIMPLEX
-                    fontScale     = 2
-                    fontColor     = (255,255,255)
-                    lineType      = 2
-
-                    middle_x      = (point_A[0] + point_B[0]) / 2
-                    middle_y      = (point_A[1] + point_D[1]) / 2
-
-                    cv2.putText(image_draw, str(id), 
-                        (int(middle_x), int(middle_y)), 
-                        font, 
-                        fontScale,
-                        fontColor,
-                        lineType)
-                    
                     index += 1
+
+                data_msg = json.dumps(human_dict)
+
+                human_dict = {}
+                human_dict["Human_pose"] = {}
             
             if human_selected and check_if_search_id_is_present(id, objects): 
+                                
+                for obj in objects.object_list:
+                    humain        = obj.bounding_box_2d
+                    id            = obj.id
+                    point_A       = (int(humain[0][0]), int(humain[0][1]))
+                    point_B       = (int(humain[1][0]), int(humain[1][1]))
+                    point_C       = (int(humain[2][0]), int(humain[2][1]))
+                    point_D       = (int(humain[3][0]), int(humain[3][1]))
+                    color         = None
+
+                    human_poseA = np.asarray([point_A])
+                    human_poseC = np.asarray([point_C])
+
+                    human_pose = np.append(human_poseA, human_poseC)
+
+                    mat_tolist = human_pose.tolist()
+
+                    human_dict["Human_pose"][str(id)] = mat_tolist
+
+
+                
                 id = id_selected
                 objects.get_object_data_from_id(object, id)                         # return the object of the selected id
                 humain        = object.bounding_box_2d
 
-                point_A       = (int(humain[0][0]), int(humain[0][1]))
-                point_B       = (int(humain[1][0]), int(humain[1][1]))
-                point_C       = (int(humain[2][0]), int(humain[2][1]))
-                point_D       = (int(humain[3][0]), int(humain[3][1]))
-                color         = (255, 0, 0)
-                image_draw    = cv2.line(image_draw, point_A, point_B, color, 5)
-                image_draw    = cv2.line(image_draw, point_B, point_C, color, 5)
-                image_draw    = cv2.line(image_draw, point_C, point_D, color, 5)
-                image_draw    = cv2.line(image_draw, point_D, point_A, color, 5)
-
-                font          = cv2.FONT_HERSHEY_SIMPLEX
-                fontScale     = 2
-                fontColor     = (255,255,255)
-                lineType      = 2
-
-                middle_x      = (point_A[0] + point_B[0]) / 2
-                middle_y      = (point_A[1] + point_D[1]) / 2
-
-                # text = 'ID:' + str(id)
-                cv2.putText(image_draw, str(id), 
-                    (int(middle_x), int(middle_y)), 
-                    font, 
-                    fontScale,
-                    fontColor,
-                    lineType)
-
                 data_detection[0] = int((humain[0][0]+humain[1][0])/2) - (int(image_draw.shape[1]/2))
                 data_detection[1] = object.position[0]                                                          # WARING! Normalement il renvoie tout le temps une valeur valide.
                 data_detection[2] = len(objects.object_list)
+
+
+                human_dict = {}
+                human_dict["Human_pose"] = {}
         else:
             data_detection    = np.zeros(3)  
             
@@ -437,8 +502,8 @@ def thread_compute_command(params):
         DESCRIPTION  : This thread will analyse the data from thread_SLAM and thread_listen_sensor
                        and takes a decision on what to send to the micro controler.
     """
-    zed, image, pose, ser, sock, runtime, objects, obj_runtime_param = params
-    global data_ultrasensor, data_position, data_detection, global_state, user_command, last_command_micro, keypoint_to_home, is_debug_option, fd, courbe
+    zed, image, pose, ser, sock, runtime, objects, obj_runtime_param, pymesh = params
+    global data_ultrasensor, data_position, data_detection, global_state, user_command, last_command_micro, keypoint_to_home, is_debug_option, fd, courbe, human_selected
 
     """
         INFO         : This is all local variable required for this thread.
@@ -521,7 +586,7 @@ def thread_compute_command(params):
                             last_command_micro = send_command_v2(last_command_micro, command_micro, ser)
 
                         else:
-                            new_command = False;
+                            new_command = False
                             # can't go forward
                             if(data_ultrasensor[1] > 300 or data_ultrasensor[1] == 0) and (data_ultrasensor[2] > 300 or data_ultrasensor[2] == 0) and not new_command:
                                 # if both are free, go left.
@@ -670,6 +735,7 @@ def thread_compute_command(params):
 
         if(global_state == Robot_state.WAITING):
             # We send stop command to engine, or we do something fun idk.
+            human_selected = False
             pass
         
         if(global_state == Robot_state.RESET):
@@ -701,7 +767,7 @@ def thread_stream_image(params):
     """
         DESCRIPTION  : This thread will send the openCV image to the interface.
     """
-    zed, image, pose, ser, sock, runtime, objects, obj_runtime_param = params
+    zed, image, pose, ser, sock, runtime, objects, obj_runtime_param, pymesh = params
     global new_image, copy_image_stream, is_debug_option
 
     hostname = socket.gethostname()
@@ -716,6 +782,82 @@ def thread_stream_image(params):
             sender.send_image(hostname, copy_image_stream)
             new_image = False
 
+def thread_pointcloud_firebase(params):
+
+    zed, image, pose, ser, sock, runtime, objects, obj_runtime_param, pymesh = params
+
+    last_call = time.time()
+
+    # Init time to get the FPS 
+    last_time = time.time()
+
+    points3D_dict              = {}
+    points3D_dict["3D_points"] = {}
+
+    limit_send_to_firebase = 0
+
+    key = ''
+    while key != 113:
+        # print("HZ SLAM THREAD    :", 1/(time.time() - last_time))
+        last_time = time.time()
+
+        # get image.
+        zed.grab(runtime)
+        zed.retrieve_image(image, sl.VIEW.LEFT)
+
+        #region GET MAPPING 3D POINTS
+
+        # get position and spatial mapping state.
+        zed.get_position(pose)
+        zed.get_spatial_mapping_state()
+
+        # get duration for time mapping.
+        duration = time.time() - last_call  
+        
+        if(duration > .05):
+            # -see if spatial mapping is available.
+            zed.request_spatial_map_async()
+        
+        if zed.get_spatial_map_request_status_async() == sl.ERROR_CODE.SUCCESS:
+            # -if spatial mapping is available go mapping.
+            zed.retrieve_spatial_map_async(pymesh)
+            last_call = time.time()
+
+        # In background, spatial mapping will use new images, depth and pose to create and update the mesh. No specific functions are required here.
+        mapping_state = zed.get_spatial_mapping_state()
+        # check param.
+        mapping_param = zed.get_spatial_mapping_parameters()
+    
+        # Print spatial mapping state and FPS
+        # print("\rImages captured: {0} || {1} || {2} || {3}".format(mapping_state, mapping_param.resolution_meter, pymesh.vertices.shape[0], 1/(time.time() - last_time)))
+
+        if pymesh.vertices.shape[0] > limit_send_to_firebase:
+            mat_tolist = pymesh.vertices.tolist()
+
+            points3D_dict["3D_points"] = mat_tolist
+                        
+            ref = db.reference('/')
+            ref.set(points3D_dict)
+
+            limit_send_to_firebase += 500
+
+        #endregion
+
+    image.free(memory_type=sl.MEM.CPU)
+    # Disable modules and close camera
+    zed.disable_spatial_mapping()
+    zed.disable_positional_tracking()
+    zed.close()
+
+def thread_server():
+    if sio.async_mode == 'threading':
+        app.run(host='172.21.72.126 ',
+                port=5001)
+        
+        # app.run(host='192.168.255.107 ',
+        #         port=5000)        
+    else:
+        print('Unknown async_mode: ' + sio.async_mode)
 #endregion
 
 if __name__ == '__main__':
@@ -724,27 +866,35 @@ if __name__ == '__main__':
     lock = threading.Lock()
 
     # Thread listen server.
-    thread_1 = threading.Thread(target=thread_listen_server     , args=(lock, params.socket,))
-    thread_1.start()
+    thread_1 = threading.Thread(target=thread_listen_server       , args=(lock, params.socket,))
+    thread_1.start()  
+  
+    # Thread slam.  
+    thread_2 = threading.Thread(target=thread_slam                , args=(params,))
+    thread_2.start()  
+  
+    # Thread compute command.  
+    thread_3 = threading.Thread(target=thread_compute_command     , args=(params,))
+    thread_3.start()  
+  
+    # Thread listen sensor.  
+    thread_4 = threading.Thread(target=thread_listen_sensor       , args=(params.ser,))
+    thread_4.start()  
+  
+    # Thread send stream image.  
+    thread_5 = threading.Thread(target=thread_stream_image        , args=(params,))
+    thread_5.start()  
+  
+    thread_6 = threading.Thread(target=thread_server              , args=())
+    thread_6.start()
 
-    # Thread slam.
-    thread_2 = threading.Thread(target=thread_slam              , args=(params,))
-    thread_2.start()
-
-    # Thread compute command.
-    thread_3 = threading.Thread(target=thread_compute_command   , args=(params,))
-    thread_3.start()
-
-    # Thread listen sensor.
-    thread_4 = threading.Thread(target=thread_listen_sensor     , args=(params.ser,))
-    thread_4.start()
-
-    # Thread send stream image.
-    thread_5 = threading.Thread(target=thread_stream_image      , args=(params,))
-    thread_5.start()
+    thread_7 = threading.Thread(target=thread_pointcloud_firebase , args=(params,))
+    thread_7.start()
 
     thread_1.join()
     thread_2.join()
     thread_3.join()
     thread_4.join()
     thread_5.join()
+    thread_6.join()
+    thread_7.join()

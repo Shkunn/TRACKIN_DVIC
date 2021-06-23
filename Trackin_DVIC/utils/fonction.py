@@ -40,6 +40,7 @@ class ParamsInit(NamedTuple):
     runtime: sl.RuntimeParameters
     objects: sl.Objects
     obj_runtime_param: sl.ObjectDetectionRuntimeParameters
+    pymesh : sl.Mesh
 
 def get_ip_address(ifname):
     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
